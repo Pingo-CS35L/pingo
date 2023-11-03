@@ -1,0 +1,8 @@
+# Learn more https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files
+
+# dependencies
+pingo-backend/node_modules/
+pingo-frontend/node_modules/
+
+# Expo
+pingo-frontend/.expo/
