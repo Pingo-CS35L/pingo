@@ -1,19 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const admin = require('firebase-admin');
-
-// Your web app's Firebase configuration
-const firebaseConfig = {
-  apiKey: "AIzaSyDW-VDyd9Iu8_fIHKoUc6g3EicHtCLBLqU",
-  authDomain: "pingo-35l.firebaseapp.com",
-  projectId: "pingo-35l",
-  storageBucket: "pingo-35l.appspot.com",
-  messagingSenderId: "844035613728",
-  appId: "1:844035613728:web:8f4d8827e014f81c69c845"
-};
-
-// Initialize Firebase Admin SDK
-admin.initializeApp(firebaseConfig);
+const firebaseApp = require('./index');
 
 // Port that the server API is listening to
 const app = express();
