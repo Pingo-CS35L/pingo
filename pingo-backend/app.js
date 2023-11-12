@@ -1,7 +1,7 @@
-const express = require('express');
-const bodyParser = require('body-parser');
-const admin = require('firebase-admin');
-const firebaseApp = require('./index');
+import express from 'express';
+import bodyParser from 'body-parser';
+import admin from 'firebase-admin';
+import { firebaseApp } from './index.js';
 
 // Port that the server API is listening to
 const app = express();
