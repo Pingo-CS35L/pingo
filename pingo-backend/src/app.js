@@ -1,9 +1,7 @@
 import express from 'express';
 import bodyParser from 'body-parser';
-import admin from 'firebase-admin';
-import { firebaseApp } from './firebase.js';
-import { testRouter } from './testRoutes.js';
-import { userRouter } from './userRoutes.js';
+import { testRouter } from './routes/testRoutes.js';
+import { userRouter } from './routes/userRoutes.js';
 
 // Port that the server API is listening to
 const app = express();
@@ -20,4 +18,3 @@ app.use("/user", userRouter);
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
 });
-
