@@ -1,19 +1,27 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet } from 'react-native';
+import { View, Text, TextInput, Button, Image, StyleSheet } from 'react-native';
+import loginImage from '../assets/Pingo_transparent_icon.png';
 
 const LoginScreen = ({ navigation }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleLogin = () => {
-    // Basic authentication logic (replace this with your actual authentication logic)
+    // Basic authentication logic (replace this with actual authentication logic)
     if (username === 'ExampleUser' && password === 'ExamplePassword') {
-      // Authentication successful, navigate to the Home screen
+      // Clear username and password on successful login
+      setUsername('');
+      setPassword('');
+
       navigation.navigate('Home');
     } else {
-      // Authentication failed, you might want to display an error message
       alert('Invalid username or password. Please try again.');
     }
+  };
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
   };
 
   const navigateToSignUp = () => {
@@ -23,30 +31,31 @@ const LoginScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Pingo | Login Page</Text>
+      <Text style={styles.welcomeText}>Welcome back to Pingo!</Text>
+
+      <Image source={loginImage} style={styles.logo} />
 
       <TextInput
         style={styles.input}
         placeholder="Username"
         onChangeText={(text) => setUsername(text)}
+        value={username}
       />
 
-      <TextInput
-        style={styles.input}
-        placeholder="Password"
-        secureTextEntry={true}
-        onChangeText={(text) => setPassword(text)}
-      />
+      <View style={styles.passwordContainer}>
+        <TextInput
+          style={styles.passwordInput}
+          placeholder="Password"
+          secureTextEntry={!showPassword}
+          onChangeText={(text) => setPassword(text)}
+          value={password}
+        />
+        <Button title={showPassword ? 'Hide' : 'Show'} onPress={togglePasswordVisibility} />
+      </View>
 
-      <Button
-        title="Login"
-        onPress={handleLogin}
-      />
+      <Button title="Login" onPress={handleLogin} />
 
-      <Button
-        title="Sign Up"
-        onPress={navigateToSignUp}
-      />
+      <Button title="Sign Up" onPress={navigateToSignUp} />
     </View>
   );
 };
@@ -57,9 +66,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  title: {
-    fontSize: 20,
+  welcomeText: {
+    fontSize: 24,
     fontWeight: 'bold',
+    marginBottom: 20,
+  },
+  logo: {
+    width: 100, // Adjust the width as needed
+    height: 100, // Adjust the height as needed
     marginBottom: 20,
   },
   input: {
@@ -68,6 +82,19 @@ const styles = StyleSheet.create({
     borderColor: 'gray',
     borderWidth: 1,
     marginBottom: 20,
+    paddingLeft: 10,
+  },
+  passwordContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: '80%', // Adjust the width as needed
+    borderColor: 'gray',
+    borderWidth: 1,
+    marginBottom: 20,
+  },
+  passwordInput: {
+    flex: 1,
+    height: 40,
     paddingLeft: 10,
   },
 });
