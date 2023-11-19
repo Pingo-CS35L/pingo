@@ -5,7 +5,7 @@ import { userRouter } from './routes/userRoutes.js';
 
 // Port that the server API is listening to
 const app = express();
-const port = 3000;
+const port = 8080;
 
 // Middleware
 app.use(bodyParser.json());
@@ -15,6 +15,6 @@ app.use("/test", testRouter);
 app.use("/user", userRouter);
 
 // Start the server
-app.listen(port, () => {
+app.listen(port, '172.23.14.247', () => {
   console.log(`Server is running on http://localhost:${port}`);
 });

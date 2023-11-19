@@ -38,7 +38,6 @@ const situations_prompts = [
     "Your reaction to your dog eating your hw",
     "What you would do if you were lost in space",
     "How you would react if someone stole your favorite book",
-    "Your reaction when your homie rizzez up",
     "Your reaction when you hit a tough fade away over someone",
 ];
 const celebrations_prompts = [
@@ -67,10 +66,10 @@ const master_prompts = [movie_prompts, dance_prompts, situations_prompts, celebr
 function pickPrompts() {
     let prompt_arr = [];
     while (prompt_arr.length < 9) {
-        let num = Math.random()* 5;
+        let num = Math.floor(Math.random() * 5);
         let promptsArr = master_prompts[num];
 
-        prompt_arr.push(promptsArr[Math.random() * promptsArr.length]);
+        prompt_arr.push(promptsArr[Math.floor(Math.random() * promptsArr.length)]);
     }
     return prompt_arr;
 }
