@@ -58,7 +58,7 @@ const LoginScreen = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <Image source={loginImage} style={styles.logo} />
-      <Text style={styles.welcomeText}>Welcome Back</Text>
+      <Text style={styles.welcomeText}>Welcome Back!</Text>
 
       <TextInput
         style={styles.input}
@@ -89,38 +89,85 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: '#3498db', // Updated background color
   },
   welcomeText: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: 'bold',
     marginBottom: 20,
+    color: '#ffffff', // Updated text color
   },
   logo: {
-    width: 100, // Adjust the width as needed
-    height: 100, // Adjust the height as needed
-    marginBottom: 20,
+    width: 120,
+    height: 120,
+    marginBottom: 30,
+    borderRadius: 15,
   },
   input: {
     height: 40,
     width: '80%',
-    borderColor: 'gray',
+    borderColor: '#ffffff', // Updated border color
     borderWidth: 1,
     marginBottom: 20,
-    paddingLeft: 10,
+    paddingLeft: 15,
+    borderRadius: 8,
+    backgroundColor: '#ffffff', // Updated input background color
+    color: '#333333',
   },
   passwordContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    width: '80%', // Adjust the width as needed
-    borderColor: 'gray',
+    width: '80%',
+    borderColor: '#ffffff',
     borderWidth: 1,
-    marginBottom: 20,
+    marginBottom: 120,
+    borderRadius: 8,
+    backgroundColor: '#ffffff',
   },
   passwordInput: {
     flex: 1,
     height: 40,
-    paddingLeft: 10,
+    paddingLeft: 15,
+    color: '#333333',
+  },
+  showHideButton: {
+    padding: 10,
+    backgroundColor: '#27ae60', // Updated button color
+    borderRadius: 8,
+  },
+  buttonText: {
+    color: '#ffffff',
+  },
+  loginButton: {
+    backgroundColor: '#27ae60',
+    padding: 15,
+    width: '80%',
+    borderRadius: 8,
+    marginBottom: 20,
+  },
+  loginButtonText: {
+    color: '#ffffff',
+    textAlign: 'center',
+    fontWeight: 'bold',
+  },
+  signUpText: {
+    fontSize: 16,
+    color: '#ffffff', // Updated text color
+    marginBottom: 10,
+  },
+  signUpButton: {
+    backgroundColor: '#ffffff',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#27ae60', // Updated border color
+    padding: 10,
+    width: '80%',
+  },
+  signUpButtonText: {
+    color: '#27ae60', // Updated text color
+    textAlign: 'center',
   },
 });
 
 export default LoginScreen;
+

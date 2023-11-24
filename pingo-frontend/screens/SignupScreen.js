@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, Button, Image, StyleSheet } from 'react-native';
-import loginImage from '../assets/Pingo_transparent_icon.png'; 
+import loginImage from '../assets/Pingo_transparent_icon.png';
 
 const SignUpScreen = ({ navigation }) => {
   const [newEmail, setNewEmail] = useState('');
@@ -18,21 +18,21 @@ const SignUpScreen = ({ navigation }) => {
         password: newPassword,
       })
     })
-    .then((response) => {
-      console.log(response.body);
-      if (response.status === 200) {
-        setNewEmail('');
-        setNewPassword('');
+      .then((response) => {
+        console.log(response.body);
+        if (response.status === 200) {
+          setNewEmail('');
+          setNewPassword('');
 
-        navigation.navigate('Home');
-      } else {
-        alert('Invalid username or password. Please try again.');
-      }
-    })
-    .catch((error) => {
-      console.log(error);
-      alert('Server error!');
-    });
+          navigation.navigate('Home');
+        } else {
+          alert('Invalid username or password. Please try again.');
+        }
+      })
+      .catch((error) => {
+        console.log(error);
+        alert('Server error!');
+      });
   };
 
   const handleSignupHardcoded = () => {
@@ -94,47 +94,46 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 20,
+    backgroundColor: '#3498db', // Updated background color
   },
   welcomeText: {
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 20,
+    color: '#ffffff', // Updated text color
   },
   logo: {
-    width: 100, // Adjust the width as needed
-    height: 100, // Adjust the height as needed
-    marginBottom: 20,
+    width: 120, // Adjusted width
+    height: 120, // Adjusted height
+    marginBottom: 30,
+    borderRadius: 15, // Added border radius
   },
   input: {
     height: 40,
     width: '80%',
-    borderColor: 'gray',
+    borderColor: '#ffffff', // Updated border color
     borderWidth: 1,
     marginBottom: 20,
-    paddingLeft: 10,
+    paddingLeft: 15,
+    borderRadius: 8,
+    backgroundColor: '#f2f2f2', // Updated background color
+    color: '#333333', // Updated text color
   },
   passwordContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    width: '80%', // Adjust the width as needed
-    borderColor: 'gray',
+    width: '80%',
+    borderColor: '#ffffff', // Updated border color
     borderWidth: 1,
     marginBottom: 20,
+    borderRadius: 8,
+    backgroundColor: '#f2f2f2', // Updated background color
   },
   passwordInput: {
     flex: 1,
     height: 40,
-    paddingLeft: 10,
-  },
-  image: {
-    width: 100, // Adjust the width as needed
-    height: 100, // Adjust the height as needed
-    marginBottom: 20,
+    paddingLeft: 15,
+    color: '#333333',
   },
 });
 

@@ -1,24 +1,26 @@
 import React, { useState } from 'react';
-import { View, ScrollView, Text, Button, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, ScrollView, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { pickPrompts } from '../prompts';
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: '#f0f0f0',
+    backgroundColor: '#3498db', // Updated background color
   },
   heading: {
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 10,
+    color: '#ffffff', // Updated text color
   },
   subHeading: {
     fontSize: 16,
     marginBottom: 20,
+    color: '#ffffff', // Updated text color
   },
   bingoCard: {
-    backgroundColor: 'white',
+    backgroundColor: '#ffffff',
     borderRadius: 10,
     padding: 10,
     marginTop: 20,
@@ -40,13 +42,13 @@ const styles = StyleSheet.create({
     color: 'white',
   },
   logoutButton: {
-    backgroundColor: 'blue',
+    backgroundColor: '#27ae60', // Updated button color
     padding: 15,
     borderRadius: 8,
     marginTop: 20,
   },
   logoutButtonText: {
-    color: 'white',
+    color: '#ffffff', // Updated text color
     textAlign: 'center',
     fontWeight: 'bold',
   },
