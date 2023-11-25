@@ -10,4 +10,4 @@
 2. Once the local network IP Address is obtained, go to the `serverConfig.js` file to update your server's local IP address
     - If you would like Node.js to automatically assign an available port for your server to listen on, please set `portNum = 0`.
 
-3. You can now update this server location into your frontend to allow communication to this backend server.
+3. You can now update this server location into your `serverConfig.js` file in the project directory to allow communication between the frontend and backend.
