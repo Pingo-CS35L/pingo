@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Get the inet value for en0 interface
+# Supported for MacOS devices
 ip_address=$(ifconfig en0 | grep 'inet ' | awk '{print $2}')
 
 echo $ip_address

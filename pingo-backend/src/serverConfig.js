@@ -1,10 +1,5 @@
-export async function getLocalIP() {
-    try {
-        const response = await fetch("https://checkip.amazonaws.com/");
-        const ipAddress = await response.text();
-        return ipAddress.trim();
-    } catch (error) {
-        console.error("Error fetching IP address:", error);
-        return null;
-    }
-}
+// SERVER CONFIGURATION
+const localIPAddress = "YOUR_IP_ADDRESS from localip shell script";
+const portNum = 8080;
+
+export { localIPAddress, portNum};
