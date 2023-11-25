@@ -2,10 +2,10 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import { testRouter } from './routes/testRoutes.js';
 import { userRouter } from './routes/userRoutes.js';
+import { getLocalIP } from './serverConfig.js';
 
 // Port that the server API is listening to
 const app = express();
-const port = 8080;
 
 // Middleware
 app.use(bodyParser.json());
@@ -14,7 +14,16 @@ app.use(bodyParser.json());
 app.use("/test", testRouter);
 app.use("/user", userRouter);
 
-// Start the server
-app.listen(port, '172.23.14.247', () => {
-  console.log(`Server is running on http://localhost:${port}`);
+const ipAddress = await getLocalIP();
+// // Start the server
+// app.listen(0, () => {
+//     const { port, address } = app.address();
+//     console.log(`Server running at http://${address}:${port}/`);
+// });
+
+const server = app.listen(0, async () => {
+    const { port } = server.address();
+    const ipAddress = await getLocalIP(); // Assuming getLocalIP is an async function
+
+    console.log(`Server running at http://${ipAddress}:${port}/`);
 });
