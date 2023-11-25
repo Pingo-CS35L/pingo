@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, Button, Image, StyleSheet } from 'react-native';
 import loginImage from '../assets/Pingo_transparent_icon.png';
+import { backendServer } from '../../serverConfig';
+
 
 const LoginScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
@@ -9,28 +11,28 @@ const LoginScreen = ({ navigation }) => {
 
   const handleLogin = () => {
     // Actual authentication logic using the backend server
-    fetch('http://localhost:3000/user/login', {
-      method: 'POST',
-      body: JSON.stringify({
-        email: email,
-        password: password,
-      })
+    fetch(`${backendServer}/login`, {
+        method: "POST",
+        body: JSON.stringify({
+            email: email,
+            password: password,
+        }),
     })
-    .then((response) => {
-      console.log(response.body);
-      if (response.status === 200) {
-        setEmail('');
-        setPassword('');
+        .then((response) => {
+            console.log(response.body);
+            if (response.status === 200) {
+                setEmail("");
+                setPassword("");
 
-        navigation.navigate('Home');
-      } else {
-        alert('Invalid username or password. Please try again.');
-      }
-    })
-    .catch((error) => {
-      console.log(error);
-      alert('Server error!');
-    });
+                navigation.navigate("Home");
+            } else {
+                alert("Invalid username or password. Please try again.");
+            }
+        })
+        .catch((error) => {
+            console.log(error);
+            alert("Server error!");
+        });
   };
 
   const handleLoginHardcoded = () => {

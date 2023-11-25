@@ -2,7 +2,7 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import { testRouter } from './routes/testRoutes.js';
 import { userRouter } from './routes/userRoutes.js';
-import { localIPAddress, portNum } from "./serverConfig.js";
+import { localIPAddress, portNum } from "../../serverConfig.js";
 
 // Port that the server API is listening to
 const app = express();
