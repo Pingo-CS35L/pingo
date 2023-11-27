@@ -18,7 +18,7 @@ By: Pranav Sankar, Nishant Ray, Akshat Tirumalai, Krish Patel, Rishauv Kar-Roy
 
 3. Then, create a .env file in the `pingo-frontend` directory (path would be `pingo-frontend/.env`), and create an environment variable called `EXPO_PUBLIC_BACKEND_SERVER`, and set it to the same IP address that you retrieved earlier. For example, if my IP address is 192.168.1.01 and I'm using port 8080, then my `pingo-frontend/.env` would look like the following:
 ```
-EXPO_PUBLIC_BACKEND_SERVER=http://192.168.1.39:8080
+EXPO_PUBLIC_BACKEND_SERVER=http://192.168.1.01:8080
 ```
 
 ## Running the Project
