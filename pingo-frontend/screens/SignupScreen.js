@@ -1,44 +1,44 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, Button, Image, StyleSheet } from 'react-native';
 import loginImage from '../assets/Pingo_transparent_icon.png';
-import { backendServer } from "../../serverConfig";
 
 const SignUpScreen = ({ navigation }) => {
   const [newEmail, setNewEmail] = useState('');
-  const [newName, setNewName] = useState('');
   const [newUsername, setNewUsername] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const { uid, setUid } = useUser();
 
-  const handleSignup = () => {
+  const handleSignup = async () => {
     // Actual authentication logic using the backend server
-    fetch(`${backendServer}/signup`, {
-        method: "POST",
-        body: JSON.stringify({
-            email: newEmail,
-            password: newPassword,
-        }),
-    })
-        .then((response) => {
-            console.log(response.body);
-            if (response.status === 200) {
-                setNewEmail("");
-                setNewPassword("");
+    
+    try {
+      const response = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_SERVER}/user/signup`, {
+          method: "POST",
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+              email: newEmail,
+              password: newPassword,
+          }),
+      });
 
-                navigation.navigate("Home");
-            } else {
-                alert("Invalid username or password. Please try again.");
-            }
-        })
-        .catch((error) => {
-            console.log(error);
-            alert("Server error!");
-        });
-  };
+      const data = await response.json();
 
-  const handleSignupHardcoded = () => {
-    // Just pretend the user signed up
-    navigation.navigate('Home');
+      if (data.success) {
+          setNewEmail("");
+          setNewUsername("");
+          setNewPassword("");
+          setUid(data.uid);
+          navigation.navigate("Home");
+      } else {
+          alert("An account with that email already exists!");
+      }
+    } catch (error) {
+      alert("Server error!");
+      console.log(error);
+    }
   };
 
   const togglePasswordVisibility = () => {
@@ -59,18 +59,14 @@ const SignUpScreen = ({ navigation }) => {
         style={styles.input}
         placeholder="Email"
         onChangeText={(text) => setNewEmail(text)}
-      />
-
-      <TextInput
-        style={styles.input}
-        placeholder="Name"
-        onChangeText={(text) => setNewName(text)}
+        value={newEmail}
       />
 
       <TextInput
         style={styles.input}
         placeholder="Username"
         onChangeText={(text) => setNewUsername(text)}
+        value={newUsername}
       />
 
       <View style={styles.passwordContainer}>
@@ -79,11 +75,12 @@ const SignUpScreen = ({ navigation }) => {
           placeholder="Password"
           secureTextEntry={!showPassword}
           onChangeText={(text) => setNewPassword(text)}
+          value={newPassword}
         />
         <Button title={showPassword ? 'Hide' : 'Show'} onPress={togglePasswordVisibility} />
       </View>
 
-      <Button title="Sign Up" onPress={handleSignupHardcoded} />
+      <Button title="Sign Up" onPress={handleSignup} />
       <Text>Already have an account?</Text>
       <Button title="Login" onPress={navigateToLogin} />
     </View>

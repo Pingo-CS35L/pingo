@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, ScrollView, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { pickPrompts } from '../prompts';
+import { useUser } from './../UserContext';
 
 const styles = StyleSheet.create({
   container: {
@@ -91,13 +92,20 @@ function PingoCard({ prompts }) {
 
 const HomeScreen = ({ navigation }) => {
   const [prompts, setPrompts] = useState(pickPrompts());
+  const { uid, setUid } = useUser();
+
+  const logout = () => {
+    setUid(null);
+    navigation.navigate('Login');
+  }
 
   return (
     <ScrollView style={styles.container}>
+      <Text style={styles.heading}>Hi User {uid}</Text>
       <Text style={styles.heading}>Today's Pingo</Text>
       <Text style={styles.subHeading}>0 squares completed</Text>
       <PingoCard prompts={prompts} />
-      <TouchableOpacity style={styles.logoutButton} onPress={() => navigation.navigate('Login')}>
+      <TouchableOpacity style={styles.logoutButton} onPress={logout}>
         <Text style={styles.logoutButtonText}>Logout</Text>
       </TouchableOpacity>
     </ScrollView>

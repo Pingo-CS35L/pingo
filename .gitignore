@@ -6,3 +6,6 @@ pingo-frontend/node_modules/
 
 # Expo
 pingo-frontend/.expo/
+
+# .env
+**/.env

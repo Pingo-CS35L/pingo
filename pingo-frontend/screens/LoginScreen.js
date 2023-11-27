@@ -1,50 +1,41 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, Button, Image, StyleSheet } from 'react-native';
 import loginImage from '../assets/Pingo_transparent_icon.png';
-import { backendServer } from '../../serverConfig';
-
+import { useUser } from './../UserContext';
 
 const LoginScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const { uid, setUid } = useUser();
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     // Actual authentication logic using the backend server
-    fetch(`${backendServer}/login`, {
-        method: "POST",
-        body: JSON.stringify({
-            email: email,
-            password: password,
-        }),
-    })
-        .then((response) => {
-            console.log(response.body);
-            if (response.status === 200) {
-                setEmail("");
-                setPassword("");
+    try {
+      const response = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_SERVER}/user/login`, {
+          method: "POST",
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+              email: email,
+              password: password,
+          }),
+      });
 
-                navigation.navigate("Home");
-            } else {
-                alert("Invalid username or password. Please try again.");
-            }
-        })
-        .catch((error) => {
-            console.log(error);
-            alert("Server error!");
-        });
-  };
+      const data = await response.json();
 
-  const handleLoginHardcoded = () => {
-    // Hardcoded authentication logic
-    if (email === 'ExampleUser' && password === 'ExamplePassword') {
-      // Clear username and password on successful login
-      setEmail('');
-      setPassword('');
-
-      navigation.navigate('Home');
-    } else {
-      alert('Invalid username or password. Please try again.');
+      if (data.success) {
+          setEmail("");
+          setPassword("");
+          setUid(data.uid);
+          navigation.navigate("Home");
+      } else {
+          alert("Invalid username or password. Please try again.");
+      }
+    } catch (error) {
+      alert("Server error!");
+      console.log(error);
     }
   };
 
@@ -66,6 +57,7 @@ const LoginScreen = ({ navigation }) => {
         style={styles.input}
         placeholder="Email"
         onChangeText={(text) => setEmail(text)}
+        value={email}
       />
 
       <View style={styles.passwordContainer}>
@@ -74,11 +66,12 @@ const LoginScreen = ({ navigation }) => {
           placeholder="Password"
           secureTextEntry={!showPassword}
           onChangeText={(text) => setPassword(text)}
+          value={password}
         />
         <Button title={showPassword ? 'Hide' : 'Show'} onPress={togglePasswordVisibility} />
       </View>
 
-      <Button title="Login" onPress={handleLoginHardcoded} />
+      <Button title="Login" onPress={handleLogin} />
 
       <Text>Don't have an account?</Text>
       <Button title="Sign Up" onPress={navigateToSignUp} />

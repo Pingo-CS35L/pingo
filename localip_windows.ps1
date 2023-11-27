@@ -1,0 +1,2 @@
+$ipAddress = (Get-NetIPAddress -AddressFamily IPv4 -InterfaceAlias (Get-NetAdapter | Where-Object {$_.Status -eq 'Up'} | Select-Object -First 1).InterfaceAlias).IPAddress# Display the IP address
+Write-Output "$ipAddress"

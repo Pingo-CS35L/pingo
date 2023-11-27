@@ -32,7 +32,7 @@ userRouter.post("/login", async (req, res) => {
             const user = userCredential.user;
             return res
                 .status(200)
-                .json({ success: true, message: "Logged in successfully!" });
+                .json({ success: true, message: "Logged in successfully!", uid: user.uid });
         })
         .catch((error) => {
             return res
@@ -48,9 +48,10 @@ userRouter.post("/signup", async (req, res) => {
         .then((userCredential) => {
             // Signed up
             const user = userCredential.user;
+            console.log(user.uid);
             return res
                 .status(200)
-                .json({ success: true, message: "Signed up successfully!" });
+                .json({ success: true, message: "Signed up successfully!", uid: user.uid });
         })
         .catch((error) => {
             return res
