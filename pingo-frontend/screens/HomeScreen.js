@@ -1,69 +1,108 @@
 import React, { useState } from 'react';
-import { View, ScrollView, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, ScrollView, Text, TouchableOpacity, StyleSheet, Pressable, Image } from 'react-native';
 import { pickPrompts } from '../prompts';
+import appLogo from '../assets/pingo-icon.png';
 import { useUser } from './../UserContext';
+import { useFonts, JosefinSans_700Bold, InterTight_600SemiBold, InterTight_500Medium, InterTight_700Bold, NotoSansDisplay_400Regular } from '@expo-google-fonts/dev';
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
     backgroundColor: '#A9E8BF', // Updated background color
   },
-  heading: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 10,
-    color: '#ffffff', // Updated text color
+  header: {
+    height: 100,
+    alignItems: 'flex-end'
   },
-  subHeading: {
-    fontSize: 16,
-    marginBottom: 20,
-    color: '#ffffff', // Updated text color
+  logoContainer: {
+    width: 40,
+    height: 40,
+    marginTop: 50,
+    marginRight: 30,
+    borderRadius: 100,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 3,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 10,
+    elevation: 3,
+  },
+  logo: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 100
+  },
+  heading: {
+    fontSize: 44,
+    fontWeight: 'bold',
+    color: '#1e2120',
+    alignSelf: 'flex-start',
+    marginLeft: 20,
+    fontFamily: 'InterTight_700Bold',
+    color: '#333330',
   },
   bingoCard: {
-    backgroundColor: '#ffffff',
-    borderRadius: 10,
-    padding: 10,
-    marginTop: 20,
+    padding: 15,
+    marginVertical: 40,
+    alignContent: 'flex-start'
   },
   bingoRow: {
-    flexDirection: 'row',
-    marginBottom: 5,
+    flexDirection: 'row'
   },
   square: {
-    backgroundColor: 'black',
     margin: 5,
-    padding: 10,
-    justifyContent: 'center',
     alignItems: 'center',
     flex: 1,
-    borderRadius: 8,
+    minHeight: 150,
+    alignSelf: 'flex-start'
   },
-  squareText: {
-    color: 'white',
+  picContainer: {
+    backgroundColor: 'white',
+    width: "100%",
+    height: 105,
+    borderRadius: 5
   },
-  logoutButton: {
-    backgroundColor: '#27ae60', // Updated button color
-    padding: 15,
-    borderRadius: 8,
-    marginTop: 20,
+  pic: {
+    width: '100%',
+    height: '100%',
+    backgroundColor: 'orange',
+    borderRadius: 5
   },
-  logoutButtonText: {
-    color: '#ffffff', // Updated text color
-    textAlign: 'center',
-    fontWeight: 'bold',
-  },
+  promptText: {
+    color: '#1e2120',
+    fontSize: 14,
+    fontFamily: 'InterTight_500Medium',
+    padding: 5
+  }
 });
 
-function PingoSquare({ prompt }) {
-  return (
-    <View style={styles.square}>
-      <Text style={styles.squareText}>{prompt}</Text>
-    </View>
-  );
+function PingoSquare({ prompt, pic }) {
+  if (pic !== null) {
+    return (
+      <View style={styles.square}>
+        <View style={styles.picContainer}>
+          <View style={styles.pic}></View>
+        </View>
+        <Text style={styles.promptText}>{prompt}</Text>
+      </View>
+    );
+  } else {
+    return (
+      <View style={styles.square}>
+        <View style={styles.picContainer}>
+          <Text>Add</Text>
+          <Text>Tap to Take Picture</Text>
+        </View>
+        <Text style={styles.promptText}>{prompt}</Text>
+      </View>
+    );
+  }
+  
 }
 
-function PingoCard({ prompts }) {
+function PingoCard({ prompts, pics }) {
   const rows = 3;
   const cols = 3;
 
@@ -82,7 +121,7 @@ function PingoCard({ prompts }) {
       {gridPrompts.map((row, rowIndex) => (
         <View key={rowIndex} style={styles.bingoRow}>
           {row.map((prompt, colIndex) => (
-            <PingoSquare key={colIndex} prompt={prompt} />
+            <PingoSquare key={colIndex} prompt={prompt} pic={pics[rowIndex * cols + colIndex]} />
           ))}
         </View>
       ))}
@@ -91,23 +130,29 @@ function PingoCard({ prompts }) {
 }
 
 const HomeScreen = ({ navigation }) => {
+  let [fontsLoaded, fontError] = useFonts({
+    JosefinSans_700Bold, InterTight_600SemiBold, InterTight_500Medium, InterTight_700Bold, NotoSansDisplay_400Regular
+  });
+
   const [prompts, setPrompts] = useState(pickPrompts());
+  const [pics, setPics] = useState(Array(9).fill(null));
   const { uid, setUid } = useUser();
 
-  const logout = () => {
-    setUid(null);
-    navigation.navigate('Login');
+  if (!fontsLoaded && !fontError) {
+    console.log("Error loading fonts");
+    return null;
   }
 
   return (
     <ScrollView style={styles.container}>
-      <Text style={styles.heading}>Hi User {uid}</Text>
-      <Text style={styles.heading}>Today's Pingo</Text>
-      <Text style={styles.subHeading}>0 squares completed</Text>
-      <PingoCard prompts={prompts} />
-      <TouchableOpacity style={styles.logoutButton} onPress={logout}>
-        <Text style={styles.logoutButtonText}>Logout</Text>
-      </TouchableOpacity>
+      <View style={styles.header}>
+        <View style={styles.logoContainer}>
+          <Image source={appLogo} style={styles.logo} />
+        </View>
+        <Text style={styles.heading}>Today's Pingo</Text>
+      </View>
+      
+      <PingoCard prompts={prompts} pics={pics} />
     </ScrollView>
   );
 };
