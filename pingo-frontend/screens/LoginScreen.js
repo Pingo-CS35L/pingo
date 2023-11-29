@@ -1,13 +1,23 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, Image, StyleSheet } from 'react-native';
-import loginImage from '../assets/Pingo_transparent_icon.png';
+import { View, Text, TextInput, Button, Image, StyleSheet, Pressable } from 'react-native';
+import appLogo from '../assets/pingo-icon.png';
 import { useUser } from './../UserContext';
+import { useFonts, JosefinSans_700Bold, InterTight_600SemiBold, InterTight_500Medium, InterTight_700Bold } from '@expo-google-fonts/dev';
 
 const LoginScreen = ({ navigation }) => {
+  let [fontsLoaded, fontError] = useFonts({
+    JosefinSans_700Bold, InterTight_600SemiBold, InterTight_500Medium, InterTight_700Bold
+  });
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const { uid, setUid } = useUser();
+
+  if (!fontsLoaded && !fontError) {
+    console.log("Error loading fonts");
+    return null;
+  }
 
   const handleLogin = async () => {
     // Actual authentication logic using the backend server
@@ -50,80 +60,132 @@ const LoginScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <Image source={loginImage} style={styles.logo} />
-      <Text style={styles.welcomeText}>Welcome Back!</Text>
+      <View style={styles.header}>
+        <View style={styles.logoContainer}>
+          <Image source={appLogo} style={styles.logo} />
+        </View>
+        <Text style={styles.pingoText}>Pingo</Text>
+      </View>
+      
+      <View style={styles.formContainer}>
 
-      <TextInput
-        style={styles.input}
-        placeholder="Email"
-        onChangeText={(text) => setEmail(text)}
-        value={email}
-      />
+        <Text style={styles.welcomeText}>Welcome Back</Text>
 
-      <View style={styles.passwordContainer}>
         <TextInput
-          style={styles.passwordInput}
-          placeholder="Password"
-          secureTextEntry={!showPassword}
-          onChangeText={(text) => setPassword(text)}
-          value={password}
+          style={styles.input}
+          placeholder="Email"
+          onChangeText={(text) => setEmail(text)}
+          value={email}
         />
-        <Button title={showPassword ? 'Hide' : 'Show'} onPress={togglePasswordVisibility} />
+
+        <View style={styles.passwordContainer}>
+          <TextInput
+            style={styles.passwordInput}
+            placeholder="Password"
+            secureTextEntry={!showPassword}
+            onChangeText={(text) => setPassword(text)}
+            value={password}
+          />
+          <Button title={showPassword ? 'Hide' : 'Show'} onPress={togglePasswordVisibility} />
+        </View>
+
+        <Pressable style={styles.loginButton} onPress={handleLogin}>
+          <Text style={styles.loginButtonText}>Login</Text>
+        </Pressable>
+
+        <Text style={styles.signUpInfo}>Don't have an account?</Text>
+        
+        <Pressable style={styles.signUpButton} onPress={navigateToSignUp}>
+          <Text style={styles.signUpButtonText}>Sign Up</Text>
+        </Pressable>
+
       </View>
 
-      <Button title="Login" onPress={handleLogin} />
-
-      <Text>Don't have an account?</Text>
-      <Button title="Sign Up" onPress={navigateToSignUp} />
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#3498db', // Updated background color
+    backgroundColor: '#ffffff',
   },
-  welcomeText: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    marginBottom: 20,
-    color: '#ffffff', // Updated text color
+  header: {
+    backgroundColor: '#A9E8BF',
+    width: '100%',
+    height: 300,
+    alignItems: 'flex-end'
+  },
+  logoContainer: {
+    width: 40,
+    height: 40,
+    marginTop: 50,
+    marginRight: 30,
+    borderRadius: 100,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 3,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 10,
+    elevation: 3,
   },
   logo: {
-    width: 120,
-    height: 120,
-    marginBottom: 30,
-    borderRadius: 15,
+    width: '100%',
+    height: '100%',
+    borderRadius: 100
+  },
+  pingoText: {
+    fontFamily: 'JosefinSans_700Bold',
+    fontSize: 80,
+    marginTop: 80,
+    color: '#1d714a',
+    alignSelf: 'center'
+  },
+  formContainer: {
+    backgroundColor: 'white',
+    alignItems: 'center',
+    paddingHorizontal: 30,
+    paddingTop: 50,
+    width: '100%',
+    height: '100%'
+  },
+  welcomeText: {
+    fontFamily: 'InterTight_600SemiBold',
+    fontSize: 28,
+    marginBottom: 20,
+    color: '#333330', // Updated text color
   },
   input: {
-    height: 40,
-    width: '80%',
-    borderColor: '#ffffff', // Updated border color
-    borderWidth: 1,
-    marginBottom: 20,
-    paddingLeft: 15,
-    borderRadius: 8,
-    backgroundColor: '#ffffff', // Updated input background color
+    height: 60,
+    width: '95%',
+    borderColor: '#ffffff',
+    borderRadius: 5,
+    backgroundColor: '#dddddd',
     color: '#333333',
+    paddingHorizontal: 15,
+    fontSize: 20,
+    fontFamily: 'InterTight_500Medium',
+    overflow: 'hidden'
   },
   passwordContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    width: '80%',
-    borderColor: '#ffffff',
-    borderWidth: 1,
-    marginBottom: 120,
-    borderRadius: 8,
-    backgroundColor: '#ffffff',
+    width: '95%',
+    marginTop: 20,
+    marginBottom: 40,
+    borderRadius: 5,
+    backgroundColor: '#dddddd',
   },
   passwordInput: {
     flex: 1,
-    height: 40,
+    height: 60,
     paddingLeft: 15,
     color: '#333333',
+    fontSize: 20,
+    fontFamily: 'InterTight_500Medium',
+    overflow: 'hidden'
   },
   showHideButton: {
     padding: 10,
@@ -134,33 +196,34 @@ const styles = StyleSheet.create({
     color: '#ffffff',
   },
   loginButton: {
-    backgroundColor: '#27ae60',
-    padding: 15,
-    width: '80%',
-    borderRadius: 8,
-    marginBottom: 20,
+    backgroundColor: '#1D714A',
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    width: '35%',
+    borderRadius: 80,
+    marginBottom: 80,
   },
   loginButtonText: {
+    fontFamily: 'InterTight_700Bold',
+    fontSize: 20,
     color: '#ffffff',
     textAlign: 'center',
     fontWeight: 'bold',
   },
-  signUpText: {
-    fontSize: 16,
-    color: '#ffffff', // Updated text color
-    marginBottom: 10,
+  signUpInfo: {
+    color: '#333333',
+    fontSize: 18,
+    fontFamily: 'InterTight_600SemiBold'
   },
   signUpButton: {
-    backgroundColor: '#ffffff',
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#27ae60', // Updated border color
-    padding: 10,
-    width: '80%',
+    backgroundColor: '#ffffff'
   },
   signUpButtonText: {
-    color: '#27ae60', // Updated text color
+    color: '#1D714A',
     textAlign: 'center',
+    fontSize: 18,
+    fontFamily: 'InterTight_600SemiBold',
+    textDecorationLine: 'underline'
   },
 });
 

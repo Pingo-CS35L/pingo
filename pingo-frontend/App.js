@@ -13,10 +13,10 @@ const Pingo = () => {
   return (
     <UserProvider>
       <NavigationContainer>
-        <Stack.Navigator initialRouteName="Login">
-          <Stack.Screen name="Login" component={LoginScreen} options={{ title: 'Login' }} />
-          <Stack.Screen name="Home" component={HomeScreen} options={{ title: 'Pingo' }} />
-          <Stack.Screen name="SignUp" component={SignUpScreen} options={{ title: 'Sign Up' }} />
+        <Stack.Navigator initialRouteName="Login" screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="Login" component={LoginScreen}/>
+          <Stack.Screen name="Home" component={HomeScreen}/>
+          <Stack.Screen name="SignUp" component={SignUpScreen}/>
 
         </Stack.Navigator>
       </NavigationContainer>
