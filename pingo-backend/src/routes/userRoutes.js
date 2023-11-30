@@ -6,6 +6,9 @@ import {
     createUserWithEmailAndPassword,
     onAuthStateChanged,
 } from "firebase/auth";
+import { master_prompts } from "../promptsList.js";
+const { getFirestore, Timestamp, FieldValue, Filter } = require('firebase-admin/firestore');
+
 
 const userRouter = express.Router();
 const auth = getAuth(firebaseApp);
@@ -112,5 +115,138 @@ userRouter.get("/getPingoStatus", async (req, res) => {
         });
     
 });
+
+userRouter.put("/updateProfile", async (req,res)=>{
+    const username = req.params.username;
+    const bio = req.body.bio;
+    const profileImageURL = req.body.profileImageURL;
+    const backgroundColor = req.body.backgroundColor;
+    const theme = req.body.theme;
+    const fontSize = req.body.fontSize;
+    const colorScheme = req.body.colorScheme;
+    const userID = req.currentUserUID;
+    const docPath = `users/${userID}`;
+    var updates = {};
+    if (typeof bio !== 'undefined') {
+        updates['bio']= bio;
+    }
+    if (typeof profileImageURL !== 'undefined') {
+        updates['profileImageURL']= profileImageURL;
+    }
+    if (typeof backgroundColor !== 'undefined') {
+        updates['backgroundColor']= backgroundColor;
+    }
+    if (typeof theme !== 'undefined') {
+        updates['theme']= theme;
+    }
+    if (typeof fontSize !== 'undefined') {
+        updates['fontSize']= fontSize;
+    }
+    if (typeof colorScheme !== 'undefined') {
+        updates['colorScheme']= colorScheme;
+    }
+    try {
+        await firestore.collection('users').doc(userID)
+        .set(updates, {merge: true}).then((response)=> {
+            console.log(`Updated User Profile with ID of ${userID}`);
+        })
+        return res.status(200).json({message:`Successfully updated your profile!`, data:{}});
+        }
+    catch {
+        return res.status(500).json({success:false, message:"Failed to update the user's profile!"})
+    }
+});
+
+userRouter.post("/getPrompts", async (req, res) => {
+    const uid = req.currentUserUID;
+    try {
+        let prompt_arr = [];
+        while (prompt_arr.length < 9) {
+            let num = Math.floor(Math.random() * 5);
+            let promptsArr = master_prompts[num];
+            prompt_arr.push(promptsArr[Math.floor(Math.random() * promptsArr.length)]);
+        }
+    // first check database for uid, check their latest prompts
+    // if empty, use this function to generate prompts
+    // if timestamp is not today, use function to generate new prompts
+    // if timestamp is today, return current prompts
+    const snapshot = await db.ref("users").child(uid).once("value");
+    const value = snapshot.val();
+    const lastTimestamp = value["lastPrompt"];
+    const dateNow = moment().format("YYYY-MM-DD");
+    const timeStamp = moment(lastTimestamp).format("YYYY-MM-DD")
+    
+    if (!timeStamp || !dateNow === timeStamp){
+        const response = await axios.get('/api/generatePrompts');
+        const generatedPrompts = response.data;
+        await db.ref("users").child(uid).update({"latestPrompts":generatedPrompts,"lastPrompt":moment().
+        format("YYYY-MM-DD")});
+        return res.status(200).json({message:'Generated Prompts', data:generatedPrompts});
+    } else{
+        const response = await axios.get('/api/getLatestPrompts');
+        const storedPrompts = response.data;
+        return res.status(200).json({message:'Returned Latest Prompts', data:storedPrompts});
+    };
+    }
+    catch (err) {
+        console.error(err);
+        return res.status(401).send('Error in retrieving prompts');
+    }
+});
+// get all users from the database and send back as json
+userRouter.get('/getAllUsers', async (req,res) => {
+        try {
+            const snapshot = await firestore.collection('users').get();
+            const data = snapshot.docs.map(doc => doc.data());
+            return res.status(200).json(data);
+            } catch (error) {
+                console.log(error);
+                return res.status(403).json({ success: false, error: "Error retrieving users" });
+            }
+});
+// get a single user by id
+userRouter.get('/getUserById', async (req, res) => {
+        try {
+            const snap1 = await firestore.collection('users').where('id','==',req.params.id).limit(1).get();
+            const snap2 = await firestore.collection('users').where('id','==',req.params.id).get();
+            const data = snapshot.docs.map(doc => doc.data());
+            return res.status(200).json(data);
+            } 
+        catch (error) {
+            console.log(error);
+            return res.status(403).json({ success: false, error: "Error retrieving user" });
+        }
+});
+// update user info in db
+userRouter.put('/updateUserInfo', async (req, res) => {
+        const body = req.body;
+        const id = req.params.id;
+        const updates = {};
+        Object.keys(body).forEach(key => {
+            updates[`${key}`] = body[key];
+        });
+        firestore.collection('users')
+        .doc(id)
+        .update(updates)
+        .then(() => {
+        res.status(200).json({ success: true, message: 'User updated'});
+        })
+        .catch(err => {
+        res.status(500).json({ success: false, err });
+        });
+ });
+// delete user from db
+userRouter.delete('/deleteUser', async (req, res) => {
+        const id = req.params.id;
+        firestore.collection('users')
+        .doc(id)
+        .delete()
+        .then(() => {
+            res.status(200).json({ success: true, message: 'user deleted'});
+        })
+        .catch(err => {
+            res.status(500).json({ success: false, err });
+        });
+    });
 
 export { userRouter };
