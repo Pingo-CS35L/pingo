@@ -183,7 +183,7 @@ const HomeScreen = ({ navigation }) => {
       
       <PingoCard prompts={prompts} pics={pics} />
 
-      <Text style={styles.pingoStatusText}>{numCompleted}/9 Prompts Completed</Text>
+      <Text style={styles.pingoStatusText}>{numCompleted}/9 Squares Completed</Text>
     </ScrollView>
   );
 };
