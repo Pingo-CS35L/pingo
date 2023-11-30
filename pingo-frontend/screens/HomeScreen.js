@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, ScrollView, Text, TouchableOpacity, StyleSheet, Pressable, Image } from 'react-native';
+import { Icon } from 'react-native-elements'
 import { pickPrompts } from '../prompts';
 import appLogo from '../assets/pingo-icon.png';
 import { useUser } from './../UserContext';
@@ -62,7 +63,9 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     width: "100%",
     height: 105,
-    borderRadius: 5
+    borderRadius: 5,
+    justifyContent: 'center',
+    alignItems: 'center'
   },
   pic: {
     width: '100%',
@@ -92,7 +95,13 @@ function PingoSquare({ prompt, pic }) {
     return (
       <View style={styles.square}>
         <View style={styles.picContainer}>
-          <Text>Add</Text>
+        <Pressable onPress={() => alert("Akshat was here")}>
+          <Icon
+            name='camera'
+            type='font-awesome'
+            color='#333330'
+          />
+        </Pressable>
           <Text>Tap to Take Picture</Text>
         </View>
         <Text style={styles.promptText}>{prompt}</Text>
