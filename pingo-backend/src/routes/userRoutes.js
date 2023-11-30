@@ -177,13 +177,13 @@ userRouter.post("/getPrompts", async (req, res) => {
     const timeStamp = moment(lastTimestamp).format("YYYY-MM-DD")
     
     if (!timeStamp || !dateNow === timeStamp){
-        const response = await axios.get('/api/generatePrompts');
+        const response = await axios.get('/api/getPrompts');
         const generatedPrompts = response.data;
         await db.ref("users").child(uid).update({"latestPrompts":generatedPrompts,"lastPrompt":moment().
         format("YYYY-MM-DD")});
         return res.status(200).json({message:'Generated Prompts', data:generatedPrompts});
     } else{
-        const response = await axios.get('/api/getLatestPrompts');
+        const response = await axios.get('/api/getPrompts');
         const storedPrompts = response.data;
         return res.status(200).json({message:'Returned Latest Prompts', data:storedPrompts});
     };
@@ -247,6 +247,6 @@ userRouter.delete('/deleteUser', async (req, res) => {
         .catch(err => {
             res.status(500).json({ success: false, err });
         });
-    });
+});
 
 export { userRouter };
