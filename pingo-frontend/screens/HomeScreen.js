@@ -4,7 +4,7 @@ import { Icon } from 'react-native-elements'
 import { pickPrompts } from '../prompts';
 import appLogo from '../assets/pingo-icon.png';
 import { useUser } from './../UserContext';
-import { useFonts, JosefinSans_700Bold, InterTight_600SemiBold, InterTight_500Medium, InterTight_700Bold, NotoSansDisplay_400Regular } from '@expo-google-fonts/dev';
+import { useFonts, JosefinSans_700Bold, InterTight_600SemiBold, InterTight_500Medium, InterTight_400Regular, InterTight_400Regular_Italic, InterTight_700Bold, NotoSansDisplay_400Regular } from '@expo-google-fonts/dev';
 
 const styles = StyleSheet.create({
   container: {
@@ -46,7 +46,8 @@ const styles = StyleSheet.create({
   },
   bingoCard: {
     padding: 15,
-    marginVertical: 40,
+    marginTop: 40,
+    marginBottom: 15,
     alignContent: 'flex-start'
   },
   bingoRow: {
@@ -67,17 +68,34 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center'
   },
+  picAddButton: {
+    marginTop: 10
+  },
   pic: {
     width: '100%',
     height: '100%',
     backgroundColor: 'orange',
     borderRadius: 5
   },
+  picInfoText: {
+    color: '#666666',
+    fontSize: 11,
+    fontFamily: 'InterTight_400Regular_Italic',
+    textAlign: 'center',
+    marginTop: 10
+  },
   promptText: {
     color: '#1e2120',
     fontSize: 14,
     fontFamily: 'InterTight_500Medium',
-    padding: 5
+    padding: 5,
+    textAlign: 'center'
+  },
+  pingoStatusText: {
+    textAlign: 'center',
+    fontSize: 24,
+    fontFamily: 'InterTight_700Bold',
+    color: '#1d714a'
   }
 });
 
@@ -95,14 +113,15 @@ function PingoSquare({ prompt, pic }) {
     return (
       <View style={styles.square}>
         <View style={styles.picContainer}>
-        <Pressable onPress={() => alert("Akshat was here")}>
+        <Pressable style={styles.picAddButton} onPress={() => alert("Akshat was here")}>
           <Icon
-            name='camera'
-            type='font-awesome'
+            name='camera-plus'
+            type='material-community'
             color='#333330'
+            size={35}
           />
         </Pressable>
-          <Text>Tap to Take Picture</Text>
+          <Text style={styles.picInfoText}>Tap to Take Picture</Text>
         </View>
         <Text style={styles.promptText}>{prompt}</Text>
       </View>
@@ -140,11 +159,12 @@ function PingoCard({ prompts, pics }) {
 
 const HomeScreen = ({ navigation }) => {
   let [fontsLoaded, fontError] = useFonts({
-    JosefinSans_700Bold, InterTight_600SemiBold, InterTight_500Medium, InterTight_700Bold, NotoSansDisplay_400Regular
+    JosefinSans_700Bold, InterTight_600SemiBold, InterTight_500Medium, InterTight_400Regular, InterTight_400Regular_Italic, InterTight_700Bold, NotoSansDisplay_400Regular
   });
 
   const [prompts, setPrompts] = useState(pickPrompts());
   const [pics, setPics] = useState(Array(9).fill(null));
+  const [numCompleted, setNumCompleted] = useState(0);
   const { uid, setUid } = useUser();
 
   if (!fontsLoaded && !fontError) {
@@ -162,6 +182,8 @@ const HomeScreen = ({ navigation }) => {
       </View>
       
       <PingoCard prompts={prompts} pics={pics} />
+
+      <Text style={styles.pingoStatusText}>{numCompleted}/9 Prompts Completed</Text>
     </ScrollView>
   );
 };
