@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, ScrollView, Text, TextInput, Button, Image, StyleSheet, Pressable } from 'react-native';
+import { Icon } from 'react-native-elements';
 import appLogo from '../assets/pingo-icon.png';
 import { useUser } from './../UserContext';
 import { useFonts, JosefinSans_700Bold, JosefinSans_500Medium, InterTight_600SemiBold, InterTight_500Medium, InterTight_700Bold } from '@expo-google-fonts/dev';
@@ -26,48 +27,84 @@ const ProfileScreen = ({ navigation }) => {
     navigation.navigate('Login');
   };
 
+  const navigateToHome = () => {
+    navigation.navigate('Home');
+  };
+
+  const navigateToFriends = () => {
+    navigation.navigate('Friends');
+  };
+
   return (
-    <ScrollView style={styles.container}>
-      <View style={styles.header}>
-        <View style={styles.logoContainer}>
-          <Image source={appLogo} style={styles.logo} />
+    <View style={styles.screen}>
+      <ScrollView contentContainerStyle={styles.container}>
+        <View style={styles.header}>
+          <View style={styles.logoContainer}>
+            <Image source={appLogo} style={styles.logo} />
+          </View>
+          <Text style={styles.heading}>Your Profile</Text>
         </View>
-        <Text style={styles.heading}>Your Profile</Text>
+        
+        <View style={styles.infoContainer}>
+          <Text style={styles.fieldInfo}>EMAIL</Text>
+          <Text style={styles.field}>{email}</Text>
+
+          <Text style={styles.fieldInfo}>USERNAME</Text>
+          <Text style={styles.field}>{username}</Text>
+        </View>
+        
+        <Text style={styles.subheading}>Pingo Statistics</Text>
+        <Text style={styles.statistic}><Text style={styles.boldStatistic}>{totalPingos}</Text> TOTAL PERFECT PINGOS</Text>
+        <Text style={styles.statistic}><Text style={styles.boldStatistic}>{totalSquares}</Text> TOTAL SQUARES COMPLETED</Text>
+        <Text style={styles.statistic}><Text style={styles.boldStatistic}>{squaresToday}/9</Text> SQUARES COMPLETED TODAY</Text>
+
+        <Text style={styles.subheading}>Friends</Text>
+        <View style={styles.friendContainer}>
+          <View style={styles.friendCard}>
+            <Text style={styles.friendName}>pshank</Text>
+          </View>
+          <View style={styles.friendCard}>
+            <Text style={styles.friendName}>rishauv</Text>
+          </View>
+        </View>
+
+        <Pressable style={styles.logoutButton} onPress={logout}>
+          <Text style={styles.logoutButtonText}>Logout</Text>
+        </Pressable>
+
+      </ScrollView>
+
+      <View style={styles.navbar}>
+        
+        <View style={styles.navRow}>
+          <Pressable style={styles.navButton}>
+            <Icon name='account' type='material-community' color='#1d714a' size={40} />
+          </Pressable>
+          
+          <Pressable style={styles.navButton} onPress={navigateToHome}>
+            <Icon name='home' type='material-community' color='#333330' size={40} />
+          </Pressable>
+          
+          <Pressable style={styles.navButton} onPress={navigateToFriends}>
+            <Icon name='account-supervisor' type='material-community' color='#333330' size={40} />
+          </Pressable>
+        </View>
+        
       </View>
       
-      <View style={styles.infoContainer}>
-        <Text style={styles.fieldInfo}>EMAIL</Text>
-        <Text style={styles.field}>{email}</Text>
-
-        <Text style={styles.fieldInfo}>USERNAME</Text>
-        <Text style={styles.field}>{username}</Text>
-      </View>
-      
-      <Text style={styles.subheading}>Pingo Statistics</Text>
-      <Text style={styles.statistic}><Text style={styles.boldStatistic}>{totalPingos}</Text> TOTAL PERFECT PINGOS</Text>
-      <Text style={styles.statistic}><Text style={styles.boldStatistic}>{totalSquares}</Text> TOTAL SQUARES COMPLETED</Text>
-      <Text style={styles.statistic}><Text style={styles.boldStatistic}>{squaresToday}/9</Text> SQUARES COMPLETED TODAY</Text>
-
-      <Text style={styles.subheading}>Friends</Text>
-      <View style={styles.friendContainer}>
-        <View style={styles.friendCard}>
-          <Text style={styles.friendName}>pshank</Text>
-        </View>
-        <View style={styles.friendCard}>
-          <Text style={styles.friendName}>rishauv</Text>
-        </View>
-      </View>
-
-      <Pressable style={styles.logoutButton} onPress={logout}>
-        <Text style={styles.logoutButtonText}>Logout</Text>
-      </Pressable>
-    </ScrollView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
+  screen: {
+    flex: 1,
+    backgroundColor: '#A9E8BF',
+  },
   container: {
-    backgroundColor: '#A9E8BF', // Updated background color
+    backgroundColor: '#A9E8BF',
+    flexGrow: 1,
+    justifyContent: 'space-between',
   },
   header: {
     backgroundColor: '#A9E8BF',
@@ -176,7 +213,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     width: '35%',
     borderRadius: 80,
-    marginBottom: 80,
+    marginBottom: 120,
   },
   logoutButtonText: {
     fontFamily: 'InterTight_700Bold',
@@ -184,6 +221,30 @@ const styles = StyleSheet.create({
     color: '#ffffff',
     textAlign: 'center',
     fontWeight: 'bold',
+  },
+  navbar: {
+    backgroundColor: '#ffffff',
+    height: 90,
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  navRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+    paddingHorizontal: 16,
+    marginBottom: 10
+  },  
+  navButton: {
+    flex: 1,
+    marginHorizontal: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
   }
 });
 

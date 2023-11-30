@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, ScrollView, Text, TouchableOpacity, StyleSheet, Pressable, Image } from 'react-native';
-import { Icon } from 'react-native-elements'
+import { Icon } from 'react-native-elements';
 import { pickPrompts } from '../prompts';
 import appLogo from '../assets/pingo-icon.png';
 import { useUser } from './../UserContext';
