@@ -6,9 +6,6 @@
   <br>
 </h1>
 
-<!--
-TODO: Fix the following hyperlinks:
--->
 <p align="center">
   <a href="#about">About</a> |
   <a href="#development">Development</a> |
