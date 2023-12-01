@@ -63,6 +63,9 @@ userRouter.post("/signup", async (req, res) => {
         });
 });
 
+// Returns username, completed_prompts, and completed_pingos
+// NOTE: To be used to display statistics and other information in the profile page. Subject to change based on new additions to the profile page.
+// The information from this method reflects lifetime data and non-mutable attributes (such as username)
 userRouter.get("/getUserInfo", async (req, res) => {
     const uid = req.currentUserUID;
   
@@ -73,10 +76,9 @@ userRouter.get("/getUserInfo", async (req, res) => {
             if (snapshot.exists()) {
                 const userData = snapshot.val();
                 const userInfo = {
-                    first_name: userData.first_name,
-                    last_name: userData.last_name,
-                    total_images_uploaded: userData.total_images_uploaded,
-                    perfect_games: userData.perfect_games
+                    username: userData.username,
+                    completed_prompts: userData.completed_prompts,
+                    completed_pingos: userData.completed_pingos
                 };
                 return res.status(200).json({ success: true, userInfo });
             } else {
@@ -96,6 +98,7 @@ userRouter.get("/getUserImages", async (req, res) => {
     // NOTE: Database will hold url to images, so calling get() on the database will return a url which will need to be processed farther. 
 });
 
+// Returns current completed pingos (resets daily)
 userRouter.get("/getPingoStatus", async (req, res) => {
     const uid = req.currentUserUID;
 
@@ -105,7 +108,7 @@ userRouter.get("/getPingoStatus", async (req, res) => {
         .then((snapshot) => {
             if (snapshot.exists()) {
                 const currentScore = snapshot.val();
-                return res.status(200).json({ success: true, current_score: currentScore });
+                return res.status(200).json({ success: true, latest_completed_prompts: currentScore.latest_completed_prompts });
             } else {
                 return res.status(404).json({ success: false, message: "User not found" });
             }
