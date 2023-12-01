@@ -116,47 +116,6 @@ userRouter.get("/getPingoStatus", async (req, res) => {
     
 });
 
-userRouter.put("/updateProfile", async (req,res)=>{
-    const username = req.params.username;
-    const bio = req.body.bio;
-    const profileImageURL = req.body.profileImageURL;
-    const backgroundColor = req.body.backgroundColor;
-    const theme = req.body.theme;
-    const fontSize = req.body.fontSize;
-    const colorScheme = req.body.colorScheme;
-    const userID = req.currentUserUID;
-    const docPath = `users/${userID}`;
-    var updates = {};
-    if (typeof bio !== 'undefined') {
-        updates['bio']= bio;
-    }
-    if (typeof profileImageURL !== 'undefined') {
-        updates['profileImageURL']= profileImageURL;
-    }
-    if (typeof backgroundColor !== 'undefined') {
-        updates['backgroundColor']= backgroundColor;
-    }
-    if (typeof theme !== 'undefined') {
-        updates['theme']= theme;
-    }
-    if (typeof fontSize !== 'undefined') {
-        updates['fontSize']= fontSize;
-    }
-    if (typeof colorScheme !== 'undefined') {
-        updates['colorScheme']= colorScheme;
-    }
-    try {
-        await firestore.collection('users').doc(userID)
-        .set(updates, {merge: true}).then((response)=> {
-            console.log(`Updated User Profile with ID of ${userID}`);
-        })
-        return res.status(200).json({message:`Successfully updated your profile!`, data:{}});
-        }
-    catch {
-        return res.status(500).json({success:false, message:"Failed to update the user's profile!"})
-    }
-});
-
 userRouter.post("/getPrompts", async (req, res) => {
     const uid = req.currentUserUID;
     try {

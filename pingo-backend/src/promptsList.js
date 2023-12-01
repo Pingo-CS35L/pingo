@@ -37,7 +37,7 @@ const dance_prompts = [
 const situations_prompts = [
     "Your reaction to your dog eating your hw",
     "What you would do if you were lost in space",
-    "How you would react if someone stole your favorite book",
+    "How you would react if someone stole your favorite",
     "Your reaction when your homie rizzez up",
     "Your reaction when you hit a tough fade away over someone",
 ];
