@@ -51,6 +51,14 @@ const SignUpScreen = ({ navigation }) => {
       console.log(error);
     }
   };
+  
+  const fakeSignup = () => {
+    setNewEmail("");
+    setNewUsername("");
+    setNewPassword("");
+    //setUid(data.uid);
+    navigation.navigate("Home");
+  }
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
@@ -99,7 +107,7 @@ const SignUpScreen = ({ navigation }) => {
           <Button title={showPassword ? 'Hide' : 'Show'} onPress={togglePasswordVisibility} />
         </View>
 
-        <Pressable style={styles.signUpButton} onPress={handleSignup}>
+        <Pressable style={styles.signUpButton} onPress={fakeSignup}>
           <Text style={styles.signUpButtonText}>Sign Up</Text>
         </Pressable>
 

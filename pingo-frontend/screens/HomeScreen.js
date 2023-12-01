@@ -7,6 +7,10 @@ import { useUser } from './../UserContext';
 import { useFonts, JosefinSans_700Bold, InterTight_600SemiBold, InterTight_500Medium, InterTight_400Regular, InterTight_400Regular_Italic, InterTight_700Bold, NotoSansDisplay_400Regular } from '@expo-google-fonts/dev';
 
 const styles = StyleSheet.create({
+  screen: {
+    flex: 1,
+    backgroundColor: '#A9E8BF',
+  },
   container: {
     flex: 1,
     backgroundColor: '#A9E8BF', // Updated background color
@@ -94,8 +98,36 @@ const styles = StyleSheet.create({
   pingoStatusText: {
     textAlign: 'center',
     fontSize: 24,
-    fontFamily: 'InterTight_700Bold',
-    color: '#1d714a'
+    fontFamily: 'InterTight_600SemiBold',
+    color: '#1d714a',
+    marginBottom: 120
+  },
+  pingoStatusBoldText: {
+    fontFamily: 'InterTight_700Bold'
+  },
+  navbar: {
+    backgroundColor: '#ffffff',
+    height: 90,
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  navRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+    paddingHorizontal: 16,
+    marginBottom: 10
+  },  
+  navButton: {
+    flex: 1,
+    marginHorizontal: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
   }
 });
 
@@ -172,19 +204,52 @@ const HomeScreen = ({ navigation }) => {
     return null;
   }
 
-  return (
-    <ScrollView style={styles.container}>
-      <View style={styles.header}>
-        <View style={styles.logoContainer}>
-          <Image source={appLogo} style={styles.logo} />
-        </View>
-        <Text style={styles.heading}>Today's Pingo</Text>
-      </View>
-      
-      <PingoCard prompts={prompts} pics={pics} />
+  const navigateToProfile = () => {
+    navigation.navigate('Profile');
+  };
 
-      <Text style={styles.pingoStatusText}>{numCompleted}/9 Squares Completed</Text>
-    </ScrollView>
+  const navigateToFriends = () => {
+    navigation.navigate('Friends');
+  };
+
+  return (
+    <View style={styles.screen}>
+
+      <ScrollView style={styles.container}>
+        <View style={styles.header}>
+          <View style={styles.logoContainer}>
+            <Image source={appLogo} style={styles.logo} />
+          </View>
+          <Text style={styles.heading}>Today's Pingo</Text>
+        </View>
+        
+        <PingoCard prompts={prompts} pics={pics} />
+
+        <Text style={styles.pingoStatusText}>
+          <Text style={styles.pingoStatusBoldText}>{numCompleted}/9</Text> Squares Completed
+        </Text>
+      </ScrollView>
+
+      <View style={styles.navbar}>
+        
+        <View style={styles.navRow}>
+          <Pressable style={styles.navButton} onPress={navigateToProfile}>
+            <Icon name='account' type='material-community' color='#333330' size={40} />
+          </Pressable>
+          
+          <Pressable style={styles.navButton}>
+            <Icon name='home' type='material-community' color='#1d714a' size={40} />
+          </Pressable>
+          
+          <Pressable style={styles.navButton} onPress={navigateToFriends}>
+            <Icon name='account-supervisor' type='material-community' color='#333330' size={40} />
+          </Pressable>
+        </View>
+        
+      </View>
+
+    </View>
+    
   );
 };
 

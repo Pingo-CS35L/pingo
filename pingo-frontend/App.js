@@ -14,7 +14,7 @@ const Pingo = () => {
   return (
     <UserProvider>
       <NavigationContainer>
-        <Stack.Navigator initialRouteName="Profile" screenOptions={{ headerShown: false }}>
+        <Stack.Navigator initialRouteName="Login" screenOptions={{ headerShown: false, gestureEnabled: false }}>
           <Stack.Screen name="Login" component={LoginScreen}/>
           <Stack.Screen name="Home" component={HomeScreen}/>
           <Stack.Screen name="SignUp" component={SignUpScreen}/>
