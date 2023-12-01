@@ -7,7 +7,7 @@ import {
     onAuthStateChanged,
 } from "firebase/auth";
 import { master_prompts } from "../promptsList.js";
-import { deleteDoc, doc, getDoc, updateDoc } from "firebase/firestore"
+import { deleteDoc, doc, getDoc, setDoc, updateDoc } from "firebase/firestore"
 const userRouter = express.Router();
 const auth = getAuth(firebaseApp);
 
@@ -25,9 +25,13 @@ const getCurrentUserUID = (req, res, next) => {
 userRouter.use(getCurrentUserUID);
 
 userRouter.post("/login", async (req, res) => {
-    const reqData = req.body;
+    const { email, password } = req.body;
 
-    signInWithEmailAndPassword(auth, reqData.email, reqData.password)
+    if (email === undefined || password === undefined) {
+        return res.status(401).json({ success: false, message: "Missing email and/or password in request body."})
+    }
+
+    signInWithEmailAndPassword(auth, email, password)
         .then((userCredential) => {
             // Logged in
             const user = userCredential.user;
@@ -43,22 +47,37 @@ userRouter.post("/login", async (req, res) => {
 });
 
 userRouter.post("/signup", async (req, res) => {
-    const reqData = req.body;
+    const { email, username, password } = req.body;
 
-    createUserWithEmailAndPassword(auth, reqData.email, reqData.password)
-        .then((userCredential) => {
-            // Signed up
-            const user = userCredential.user;
-            console.log(user.uid);
-            return res
-                .status(200)
-                .json({ success: true, message: "Signed up successfully!", uid: user.uid });
-        })
-        .catch((error) => {
-            return res
-                .status(401)
-                .json({ success: false, message: error.message });
-        });
+    if (email === undefined || username === undefined || password === undefined) {
+        return res.status(401).json({ success: false, message: "Missing email, username, and/or password in request body." })
+    }
+
+    try {
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        // Signed up
+        const user = userCredential.user;
+
+        const newUserData = {
+            username: username,
+            email: email,
+            completed_pingos: 0,
+            completed_prompts: 0,
+            friends: [],
+            last_completed_pingo: "",
+            latest_completed_prompts: 0,
+            latest_prompts: Array(9).fill(""),
+            latest_prompts_pictures: Array(9).fill(""),
+        };
+
+        setDoc(doc(database, "users", user.uid), newUserData);
+
+        return res.status(200).json({ success: true, message: "Signed up successfully!", uid: user.uid });
+        
+    } catch (error) {
+        console.log(error);
+        return res.status(401).json({ success: false, message: error.message });
+    }
 });
 
 userRouter.get("/getUserImages", async (req, res) => {
@@ -106,13 +125,6 @@ userRouter.post("/getPrompts", async (req, res) => {
             return res.status(401).json({ success: false, message: "id is required in request body."})
         }
 
-        // first check database for uid, check their latest prompts
-        // if empty, use this function to generate prompts
-        // if timestamp is not today, use function to generate new prompts
-        // if timestamp is today, return current prompts
-        
-        //const snapshot = await database.ref("users").child(id).once("value");
-        //const value = snapshot.val();
         const docRef = doc(database, "users", id);
         const docSnap = await getDoc(docRef);
 
