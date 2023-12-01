@@ -131,7 +131,12 @@ const styles = StyleSheet.create({
   }
 });
 
-function PingoSquare({ prompt, pic }) {
+function PingoSquare({ prompt, pic, navigation}) {
+
+  const navigateToCamera = () => {
+      navigation.navigate("CameraScreen");
+  };
+
   if (pic !== null) {
     return (
       <View style={styles.square}>
@@ -143,26 +148,29 @@ function PingoSquare({ prompt, pic }) {
     );
   } else {
     return (
-      <View style={styles.square}>
-        <View style={styles.picContainer}>
-        <Pressable style={styles.picAddButton} onPress={() => alert("Akshat was here")}>
-          <Icon
-            name='camera-plus'
-            type='material-community'
-            color='#333330'
-            size={35}
-          />
-        </Pressable>
-          <Text style={styles.picInfoText}>Tap to Take Picture</Text>
+        <View style={styles.square}>
+            <View style={styles.picContainer}>
+                <Pressable
+                    style={styles.picAddButton}
+                    onPress={navigateToCamera}
+                >
+                    <Icon
+                        name="camera-plus"
+                        type="material-community"
+                        color="#333330"
+                        size={35}
+                    />
+                </Pressable>
+                <Text style={styles.picInfoText}>Tap to Take Picture</Text>
+            </View>
+            <Text style={styles.promptText}>{prompt}</Text>
         </View>
-        <Text style={styles.promptText}>{prompt}</Text>
-      </View>
     );
   }
   
 }
 
-function PingoCard({ prompts, pics }) {
+function PingoCard({ prompts, pics, navigation }) {
   const rows = 3;
   const cols = 3;
 
@@ -181,7 +189,7 @@ function PingoCard({ prompts, pics }) {
       {gridPrompts.map((row, rowIndex) => (
         <View key={rowIndex} style={styles.bingoRow}>
           {row.map((prompt, colIndex) => (
-            <PingoSquare key={colIndex} prompt={prompt} pic={pics[rowIndex * cols + colIndex]} />
+            <PingoSquare key={colIndex} prompt={prompt} navigation={navigation} pic={pics[rowIndex * cols + colIndex]} />
           ))}
         </View>
       ))}
@@ -223,7 +231,7 @@ const HomeScreen = ({ navigation }) => {
           <Text style={styles.heading}>Today's Pingo</Text>
         </View>
         
-        <PingoCard prompts={prompts} pics={pics} />
+        <PingoCard prompts={prompts} pics={pics} navigation={navigation} />
 
         <Text style={styles.pingoStatusText}>
           <Text style={styles.pingoStatusBoldText}>{numCompleted}/9</Text> Squares Completed
