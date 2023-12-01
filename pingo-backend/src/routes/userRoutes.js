@@ -1,5 +1,5 @@
 import express from "express";
-import { firebaseApp } from "../firebase.js";
+import { firebaseApp, database } from "../firebase.js";
 import {
     getAuth,
     signInWithEmailAndPassword,
@@ -7,9 +7,7 @@ import {
     onAuthStateChanged,
 } from "firebase/auth";
 import { master_prompts } from "../promptsList.js";
-const { getFirestore, Timestamp, FieldValue, Filter } = require('firebase-admin/firestore');
-
-
+import { deleteDoc, doc, getDoc, updateDoc } from "firebase/firestore"
 const userRouter = express.Router();
 const auth = getAuth(firebaseApp);
 
@@ -63,92 +61,90 @@ userRouter.post("/signup", async (req, res) => {
         });
 });
 
-// Returns username, completed_prompts, and completed_pingos
-// NOTE: To be used to display statistics and other information in the profile page. Subject to change based on new additions to the profile page.
-// The information from this method reflects lifetime data and non-mutable attributes (such as username)
-userRouter.get("/getUserInfo", async (req, res) => {
-    const uid = req.currentUserUID;
-  
-    const userDocRef = firestore.collection('users').doc(uid);
-
-    get(userRef)
-        .then((snapshot) => {
-            if (snapshot.exists()) {
-                const userData = snapshot.val();
-                const userInfo = {
-                    username: userData.username,
-                    completed_prompts: userData.completed_prompts,
-                    completed_pingos: userData.completed_pingos
-                };
-                return res.status(200).json({ success: true, userInfo });
-            } else {
-                return res.status(404).json({ success: false, message: "User not found" });
-            }
-        })
-        .catch((error) => {
-            return res.status(500).json({ success: false, message: "Error fetching data" });
-        });
-
-
-});
-
 userRouter.get("/getUserImages", async (req, res) => {
     const uid = req.currentUserUID;
     // TODO: Implement firebase data schema to fetch user's pingo board images. 
     // NOTE: Database will hold url to images, so calling get() on the database will return a url which will need to be processed farther. 
 });
 
-// Returns current completed pingos (resets daily)
-userRouter.get("/getPingoStatus", async (req, res) => {
-    const uid = req.currentUserUID;
+userRouter.get("/getPingoStats", async (req, res) => {
+    try {
+        const { id } = req.body;
 
-    const userDocRef = firestore.collection('users').doc(uid);
-    
-    get(userRef)
-        .then((snapshot) => {
-            if (snapshot.exists()) {
-                const currentScore = snapshot.val();
-                return res.status(200).json({ success: true, latest_completed_prompts: currentScore.latest_completed_prompts });
-            } else {
-                return res.status(404).json({ success: false, message: "User not found" });
-            }
-        })
-        .catch((error) => {
-            return res.status(500).json({ success: false, message: "Error fetching data" });
-        });
-    
+        if (id === undefined) {
+            return res.status(401).json({ success: false, message: "id is required in request body."})
+        }
+        const docRef = doc(database, "users", id);
+        const docSnap = await getDoc(docRef);
+
+        if(!docSnap.exists()){
+            return res.status(401).json({success:false, message: "No User Found with that ID"});
+        }
+
+        return res.status(200).json({today_score: docSnap.data()["latest_completed_prompts"], total_completed_pingos: docSnap.data()["completed_pingos"], total_completed_prompts: docSnap.data()["completed_prompts"]});
+
+    } catch (error) {
+        console.log(error);
+        return res.status(403).json({ success: false, message: "Error retrieving user" });
+    }
 });
 
+function generatePrompts() {
+    let prompt_arr = [];
+    while (prompt_arr.length < 9) {
+        let num = Math.floor(Math.random() * 5);
+        let promptsArr = master_prompts[num];
+        prompt_arr.push(promptsArr[Math.floor(Math.random() * promptsArr.length)]);
+    }
+    return prompt_arr;
+}
 userRouter.post("/getPrompts", async (req, res) => {
-    const uid = req.currentUserUID;
     try {
-        let prompt_arr = [];
-        while (prompt_arr.length < 9) {
-            let num = Math.floor(Math.random() * 5);
-            let promptsArr = master_prompts[num];
-            prompt_arr.push(promptsArr[Math.floor(Math.random() * promptsArr.length)]);
+        const { id } = req.body;
+
+        if (id === undefined) {
+            return res.status(401).json({ success: false, message: "id is required in request body."})
         }
-    // first check database for uid, check their latest prompts
-    // if empty, use this function to generate prompts
-    // if timestamp is not today, use function to generate new prompts
-    // if timestamp is today, return current prompts
-    const snapshot = await db.ref("users").child(uid).once("value");
-    const value = snapshot.val();
-    const lastTimestamp = value["lastPrompt"];
-    const dateNow = moment().format("YYYY-MM-DD");
-    const timeStamp = moment(lastTimestamp).format("YYYY-MM-DD")
-    
-    if (!timeStamp || !dateNow === timeStamp){
-        const response = await axios.get('/api/getPrompts');
-        const generatedPrompts = response.data;
-        await db.ref("users").child(uid).update({"latestPrompts":generatedPrompts,"lastPrompt":moment().
-        format("YYYY-MM-DD")});
-        return res.status(200).json({message:'Generated Prompts', data:generatedPrompts});
-    } else{
-        const response = await axios.get('/api/getPrompts');
-        const storedPrompts = response.data;
-        return res.status(200).json({message:'Returned Latest Prompts', data:storedPrompts});
-    };
+
+        // first check database for uid, check their latest prompts
+        // if empty, use this function to generate prompts
+        // if timestamp is not today, use function to generate new prompts
+        // if timestamp is today, return current prompts
+        
+        //const snapshot = await database.ref("users").child(id).once("value");
+        //const value = snapshot.val();
+        const docRef = doc(database, "users", id);
+        const docSnap = await getDoc(docRef);
+
+        if(!docSnap.exists()){
+            return res.status(401).json({success:false, message: "No User Found with that ID"});
+        }
+        const data = docSnap.data(); 
+        
+        const lastTimestamp = data["last_completed_pingo"];
+        const dateNow = (new Date()).toLocaleDateString('en-US', { year: '2-digit', month: '2-digit', day: '2-digit'});
+        const timeStamp = (new Date(lastTimestamp)).toLocaleDateString('en-US', { year: '2-digit', month: '2-digit', day: '2-digit'});
+        
+        if (timeStamp && dateNow !== timeStamp) {
+            try {
+                const generatedPrompts = generatePrompts();
+                await updateDoc(docRef, {
+                    "latest_prompts": generatedPrompts,
+                    "last_completed_pingo": dateNow,
+                    "latest_completed_prompts": 0,
+                    "latest_prompts_pictures": Array(9).fill("")
+                });
+                return res.status(200).json({ message: 'Generated Prompts', prompts: generatedPrompts });
+            } 
+            catch {
+                console.error('Error generating prompts:', error);
+                return res.status(500).json({ message: 'Error generating prompts' });
+            }
+        } 
+        else {
+            const storedPrompts = docSnap.data()["latest_prompts"];
+            return res.status(200).json({ message: 'Returned Latest Prompts', prompts: storedPrompts });
+        }
     }
     catch (err) {
         console.error(err);
@@ -168,47 +164,58 @@ userRouter.get('/getAllUsers', async (req,res) => {
 });
 // get a single user by id
 userRouter.get('/getUserById', async (req, res) => {
-        try {
-            const snap1 = await firestore.collection('users').where('id','==',req.params.id).limit(1).get();
-            const snap2 = await firestore.collection('users').where('id','==',req.params.id).get();
-            const data = snapshot.docs.map(doc => doc.data());
-            return res.status(200).json(data);
-            } 
-        catch (error) {
-            console.log(error);
-            return res.status(403).json({ success: false, error: "Error retrieving user" });
+    try {
+        const { id } = req.body;
+
+        if (id === undefined) {
+            return res.status(401).json({ success: false, message: "id is required in request body."})
         }
+        const docRef = doc(database, "users", id);
+        const docSnap = await getDoc(docRef);
+
+        if(!docSnap.exists()){
+            return res.status(401).json({success:false, message: "No User Found with that ID"});
+        }
+
+        return res.status(200).json(docSnap.data());
+
+    } catch (error) {
+        console.log(error);
+        return res.status(403).json({ success: false, message: "Error retrieving user" });
+    }
 });
 // update user info in db
-userRouter.put('/updateUserInfo', async (req, res) => {
-        const body = req.body;
-        const id = req.params.id;
-        const updates = {};
-        Object.keys(body).forEach(key => {
-            updates[`${key}`] = body[key];
-        });
-        firestore.collection('users')
-        .doc(id)
-        .update(updates)
-        .then(() => {
-        res.status(200).json({ success: true, message: 'User updated'});
-        })
-        .catch(err => {
-        res.status(500).json({ success: false, err });
-        });
- });
+// userRouter.put('/updateUserInfo', async (req, res) => {
+//         const body = req.body;
+//         const id = req.params.id;
+//         const updates = {};
+//         Object.keys(body).forEach(key => {
+//             updates[`${key}`] = body[key];
+//         });
+//         firestore.collection('users')
+//         .doc(id)
+//         .update(updates)
+//         .then(() => {
+//         res.status(200).json({ success: true, message: 'User updated'});
+//         })
+//         .catch(err => {
+//         res.status(500).json({ success: false, err });
+//         });
+//  });
+
 // delete user from db
 userRouter.delete('/deleteUser', async (req, res) => {
-        const id = req.params.id;
-        firestore.collection('users')
-        .doc(id)
-        .delete()
-        .then(() => {
-            res.status(200).json({ success: true, message: 'user deleted'});
-        })
-        .catch(err => {
-            res.status(500).json({ success: false, err });
-        });
+    const {id} = req.body;
+    if (id === undefined) {
+        return res.status(401).json({ success: false, message: "id is required in request body."})
+    }
+    await deleteDoc(doc(database, "users", id))
+    .then(() => {
+        res.status(200).json({ success: true, message: 'user deleted'});
+    })
+    .catch(err => {
+        res.status(500).json({ success: false, err });
+    });
 });
 
 export { userRouter };
