@@ -137,7 +137,7 @@ function PingoSquare({ prompt, pic, navigation}) {
       navigation.navigate("CameraScreen");
   };
 
-  if (pic !== null) {
+  if (pic !== null && pic !== undefined) {
     return (
       <View style={styles.square}>
         <View style={styles.picContainer}>

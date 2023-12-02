@@ -1,13 +1,13 @@
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { StatusBar } from 'expo-status-bar';
 import HomeScreen from './screens/HomeScreen.js';
 import LoginScreen from './screens/LoginScreen.js';
 import SignUpScreen from './screens/SignupScreen.js';
 import ProfileScreen from './screens/ProfileScreen.js'
 import { UserProvider } from './UserContext.js';
 import CameraScreen from './screens/CameraScreen.js';
+import FriendsScreen from './screens/FriendsScreen.js';
 
 const Stack = createNativeStackNavigator();
 
@@ -24,6 +24,7 @@ const Pingo = () => {
                   <Stack.Screen name="SignUp" component={SignUpScreen} />
                   <Stack.Screen name="CameraScreen" component={CameraScreen} />
                   <Stack.Screen name="Profile" component={ProfileScreen} />
+                  <Stack.Screen name="Friends" component={FriendsScreen} />
               </Stack.Navigator>
           </NavigationContainer>
       </UserProvider>
