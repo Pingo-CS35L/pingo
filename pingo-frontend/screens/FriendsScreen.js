@@ -11,7 +11,7 @@ function FriendPingoSquare({ prompt, pic }) {
       return (
         <View style={styles.square}>
           <View style={styles.picContainer}>
-            <View style={styles.pic}></View>
+            <Image source={{ uri: pic }} style={styles.pic} />
           </View>
           <Text style={styles.promptText}>{prompt}</Text>
         </View>
@@ -72,7 +72,10 @@ const FriendsScreen = ({ navigation }) => {
   });
 
   const { uid, setUid } = useUser();
-  const [ friends, setFriends ] = useState(Array(3).fill("testFriend"));
+  const [ friendIDs, setFriendIDs ] = useState(Array(2).fill("testFriendUID"));
+  const [ friendUsernames, setFriendUsernames ] = useState(Array(2).fill("testFriendUsername"));
+  const [ friendPrompts, setFriendPrompts ] = useState([Array(9).fill("testPrompt"), Array(9).fill("testPrompt")]);
+  const [ friendPics, setFriendPics ] = useState([Array(9).fill("https://static.scientificamerican.com/sciam/cache/file/DB4E849F-5267-4A4C-A8A1F8AB1344C945_source.jpg?w=590&h=800&8397FFEE-1F26-49BC-98ECB53FE3F8A6D6"), Array(9).fill("https://static.scientificamerican.com/sciam/cache/file/DB4E849F-5267-4A4C-A8A1F8AB1344C945_source.jpg?w=590&h=800&8397FFEE-1F26-49BC-98ECB53FE3F8A6D6")]);
 
   if (!fontsLoaded && !fontError) {
     console.log("Error loading fonts");
@@ -98,12 +101,12 @@ const FriendsScreen = ({ navigation }) => {
         </View>
         
         <View style={styles.friendPingosContainer}>
-            {friends.map((friendUID) => (
-                <View style={styles.friendPingoContainer}>
-                    <Text style={styles.subheading}>pranav</Text>
-                    <FriendPingoCard prompts={Array(9).fill("Test Prompt")} pics={Array(9).fill("hey")}/>
-                </View>
-            ))}
+        {friendIDs.map((friendUID, index) => (
+            <View key={friendUID} style={styles.friendPingoContainer}>
+                <Text style={styles.subheading}>{friendUsernames[index]}</Text>
+                <FriendPingoCard prompts={friendPrompts[index]} pics={friendPics[index]} />
+            </View>
+        ))}
         </View>
 
         <Text style={styles.subheading}>Add Friends</Text>
@@ -196,7 +199,6 @@ const styles = StyleSheet.create({
   
   bingoCard: {
     padding: 15,
-    marginTop: 40,
     marginBottom: 15,
     alignContent: 'flex-start'
   },
@@ -244,7 +246,7 @@ const styles = StyleSheet.create({
   friendContainer: {
     width: '100%',
     alignItems: 'center',
-    marginBottom: 20
+    marginBottom: 120
   },
   friendCard: {
     backgroundColor: '#1e2120',

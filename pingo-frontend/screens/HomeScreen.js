@@ -141,7 +141,7 @@ function PingoSquare({ prompt, pic, navigation}) {
     return (
       <View style={styles.square}>
         <View style={styles.picContainer}>
-          <View style={styles.pic}></View>
+          <Image source={{ uri: pic }} style={styles.pic} />
         </View>
         <Text style={styles.promptText}>{prompt}</Text>
       </View>
