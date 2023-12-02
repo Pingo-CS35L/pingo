@@ -94,8 +94,8 @@ userRouter.get("/getUserImages", async (req, res) => {
         if(!docSnap.exists()){
             return res.status(401).json({success:false, message: "No User Found with that ID"});
         }
-
-        return res.status(200).json({today_score: docSnap.data()["latest_completed_prompts"], total_completed_pingos: docSnap.data()["completed_pingos"], total_completed_prompts: docSnap.data()["completed_prompts"]});
+        
+        return res.status(200).json({today_pictures: docSnap.data()["latest_prompts_pictures"]});
 
     } catch (error) {
         console.log(error);
@@ -116,8 +116,8 @@ userRouter.get("/getPingoStats", async (req, res) => {
         if(!docSnap.exists()){
             return res.status(401).json({success:false, message: "No User Found with that ID"});
         }
-
-        return res.status(200).json({today_pictures: docSnap.data()["latest_prompts_pictures"]});
+        
+        return res.status(200).json({today_score: docSnap.data()["latest_completed_prompts"], total_completed_pingos: docSnap.data()["completed_pingos"], total_completed_prompts: docSnap.data()["completed_prompts"]});
 
     } catch (error) {
         console.log(error);
