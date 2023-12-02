@@ -80,13 +80,8 @@ userRouter.post("/signup", async (req, res) => {
     }
 });
 
+// NOTE: Database will hold url to images, so calling get() on the database will return a url which will need to be processed farther. (Probably better to do on frontend?)
 userRouter.get("/getUserImages", async (req, res) => {
-    const uid = req.currentUserUID;
-    // TODO: Implement firebase data schema to fetch user's pingo board images. 
-    // NOTE: Database will hold url to images, so calling get() on the database will return a url which will need to be processed farther. 
-});
-
-userRouter.get("/getPingoStats", async (req, res) => {
     try {
         const { id } = req.body;
 
@@ -108,6 +103,28 @@ userRouter.get("/getPingoStats", async (req, res) => {
     }
 });
 
+userRouter.get("/getPingoStats", async (req, res) => {
+    try {
+        const { id } = req.body;
+
+        if (id === undefined) {
+            return res.status(401).json({ success: false, message: "id is required in request body."})
+        }
+        const docRef = doc(database, "users", id);
+        const docSnap = await getDoc(docRef);
+
+        if(!docSnap.exists()){
+            return res.status(401).json({success:false, message: "No User Found with that ID"});
+        }
+
+        return res.status(200).json({today_pictures: docSnap.data()["latest_prompts_pictures"]});
+
+    } catch (error) {
+        console.log(error);
+        return res.status(403).json({ success: false, message: "Error retrieving user" });
+    }
+});
+
 function generatePrompts() {
     let prompt_arr = [];
     while (prompt_arr.length < 9) {
@@ -117,6 +134,7 @@ function generatePrompts() {
     }
     return prompt_arr;
 }
+
 userRouter.post("/getPrompts", async (req, res) => {
     try {
         const { id } = req.body;
@@ -163,6 +181,7 @@ userRouter.post("/getPrompts", async (req, res) => {
         return res.status(401).send('Error in retrieving prompts');
     }
 });
+
 // get all users from the database and send back as json
 userRouter.get('/getAllUsers', async (req,res) => {
         try {
@@ -174,6 +193,7 @@ userRouter.get('/getAllUsers', async (req,res) => {
                 return res.status(403).json({ success: false, error: "Error retrieving users" });
             }
 });
+
 // get a single user by id
 userRouter.get('/getUserById', async (req, res) => {
     try {
@@ -196,6 +216,7 @@ userRouter.get('/getUserById', async (req, res) => {
         return res.status(403).json({ success: false, message: "Error retrieving user" });
     }
 });
+
 // update user info in db
 // userRouter.put('/updateUserInfo', async (req, res) => {
 //         const body = req.body;
