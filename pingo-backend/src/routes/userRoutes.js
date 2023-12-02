@@ -251,4 +251,118 @@ userRouter.delete('/deleteUser', async (req, res) => {
     });
 });
 
+//route to add friends, route to delete friends, route to get friend's prompts, route to get friend's images, get all user's friends
+userRouter.post("/addFriend", async (req, res)=>{
+    try {
+        const {userId, friendId} = req.body;
+        if(userId === undefined || friendId === undefined){
+            return res.status(401).json({ success: false, message: "userId and friendId is required in request body."});
+        }
+        const docRef1 = doc(database, "users", userId);
+        const docRef2 = doc(database, "users", friendId);
+        const docSnap1 = await getDoc(docRef1);
+        const docSnap2 = await getDoc(docRef2);
+
+        if(!docSnap1.exists() || !docSnap2.exists()){
+            return res.status(401).json({success:false, message: "No User and/or Friend Found with that ID"});
+        }
+        if(docSnap1.data()["friends"].includes(friendId) || docSnap2.data()["friends"].includes(userId)) {
+            return res.status(401).json({success:false, message: "At least one of you are already friends"});
+        }
+        
+        await updateDoc(docRef1, {
+            "friends": [...docSnap1.data()["friends"], friendId]
+        });
+        
+        await updateDoc(docRef2, {
+            "friends": [...docSnap2.data()["friends"], userId]
+        });
+        return res.status(200).json({success: true, message: "Successfully added friend"});
+    }
+    catch (error) {
+        return res.status(500).json({success:false, message: "Failed to become friends"});
+    }
+});
+
+userRouter.delete("/deleteFriend", async (req,res) =>{
+    try {
+        const {userId, friendId} = req.body;
+        if(userId === undefined || friendId === undefined){
+            return res.status(401).json({ success: false, message: "userId and friendId is required in request body."});
+        }
+        const docRef1 = doc(database, "users", userId);
+        const docRef2 = doc(database, "users", friendId);
+        const docSnap1 = await getDoc(docRef1);
+        const docSnap2 = await getDoc(docRef2);
+        
+        if(!docSnap1.exists() || !docSnap2.exists()) {
+            return res.status(401).json({success:false, message: "No User and/or Friend Found with that ID"});
+        }
+        if(!docSnap1.data()["friends"].includes(friendId) || !docSnap2.data()["friends"].includes(userId)) {
+            return res.status(401).json({success:false, message: "At least one of you are not friends"});
+        }
+        await updateDoc(docRef1, {
+            "friends": docSnap1.data()["friends"].filter(item => item !== friendId)
+        })
+        await updateDoc(docRef2, {
+            "friends": docSnap2.data()["friends"].filter(item => item !== userId)
+        })
+        return res.status(200).json({success:true, message:"Successfully deleted friend"});
+    }
+    catch (error) {
+        return res.status(500).json({success: false, message: "Failed to remove friend"});
+    }
+});
+//get all of users' friends
+userRouter.get('/getAllFriends',async (req, res)=>{
+    try {
+        const {userId} = req.body;
+        if(userId === undefined){
+            return res.status(401).json({ success: false, message: "UserId is required in request body."});
+        }
+        const docRef = doc(database,"users",userId);
+        const docSnap =  await getDoc(docRef);
+        if (!docSnap.exists()) {
+            return res.status(401).json({ success: false, message: 'No such user found.' });
+        }
+        return res.status(200).json(docSnap.data()["friends"]);
+    }
+    catch (error){
+        return res.status(500).json({success: false, message: "Failed to get all friends"});
+    }
+});
+
+userRouter.get('/getFriendsUsernames', async (req, res)=>{
+    try {
+        const {userId} = req.body;
+        if(userId === undefined){
+            return res.status(401).json({ success: false, message: "UserId is required in request body."});
+        }
+        const docRef = doc(database,"users",userId);
+        const docSnap =  await getDoc(docRef);
+        if (!docSnap.exists()) {
+            return res.status(401).json({ success: false, message: 'No such user found.' });
+        }
+        const friendIds = docSnap.data()["friends"];
+        let friendUsernames = [];
+        for (let i = 0; i < friendIds.length; i++) {
+            const id = friendIds[i];
+            const friendDocRef = doc(database, "users", id);
+            const friendDocSnap = await getDoc(friendDocRef);
+            if(!friendDocSnap.exists()){
+                return res.status(401).json({ success: false, message: 'Friend not a valid user.'});
+            }
+            console.log(friendDocSnap.data());
+            friendUsernames.push(friendDocSnap.data()["username"]);
+            console.log(friendUsernames);
+        }
+        return res.status(200).json({success: true, friendUsernames: friendUsernames});
+    }
+    catch (error){
+        console.log(error);
+        return res.status(500).json({success: false, message: "Failed to get friends' usernames"});
+    }
+});
+
+
 export { userRouter };
