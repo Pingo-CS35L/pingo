@@ -14,7 +14,7 @@
 
 # About
 
-Pingo takes the timeless classic Bingo and brings it to the the modern world with the interactivity and engagement of social media. 
+Pingo takes the timeless classic Bingo and brings it to the modern world with the interactivity and engagement of social media. 
 Each day, users get a unique bingo card, with each tile corresponding to a randomly generated picture prompt.
 In order to win for the day, you must complete 3 prompts in a row - but you may keep playing and try to clear the entire board!
 
@@ -25,7 +25,7 @@ Additionally, users can add their friends on the app to see their Pingo boards t
 # Development
 
 Pingo was created as the final project for UCLA's COM SCI 35L course by students Pranav Sankar, Nishant Ray, Akshat Tirumalai, Krish Patel, Rishauv Kar-Roy (Discussion 1A). 
-The front-end of this mobile app was built using React Native, and the backend is powered by Node.js.
+The front-end of this mobile app was built using React Native, and the back-end is powered by Node.js.
 
 # Getting Started
 
