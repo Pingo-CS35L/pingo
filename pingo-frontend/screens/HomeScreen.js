@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, ScrollView, Text, TouchableOpacity, StyleSheet, Pressable, Image } from 'react-native';
 import { Icon } from 'react-native-elements';
 import { pickPrompts } from '../prompts';
@@ -175,7 +175,7 @@ function PingoSquare({ prompt, pic, navigation, isStockPhoto, onStockPhotoPress 
         </Lightbox>
       </View>
     );
-  } else if (pic !== null && pic !== undefined) {
+  } else if (pic !== null && pic !== undefined && pic !== "") {
     return (
       <View style={styles.square}>
         <Lightbox
@@ -206,7 +206,7 @@ function PingoSquare({ prompt, pic, navigation, isStockPhoto, onStockPhotoPress 
               name="camera-plus"
               type="material-community"
               color="#333330"
-              size={35}
+              size={42}
             />
           </Pressable>
           <Text style={styles.picInfoText}>Tap to Take Picture</Text>
@@ -252,6 +252,7 @@ function PingoCard({ prompts, pics, navigation }) {
 }
 
 const HomeScreen = ({ navigation }) => {
+  const { uid, setUid } = useUser();
   let [fontsLoaded, fontError] = useFonts({
     JosefinSans_700Bold, InterTight_600SemiBold, InterTight_500Medium, InterTight_400Regular, InterTight_400Regular_Italic, InterTight_700Bold, NotoSansDisplay_400Regular
   });
@@ -259,7 +260,81 @@ const HomeScreen = ({ navigation }) => {
   const [prompts, setPrompts] = useState(pickPrompts());
   const [pics, setPics] = useState(Array(9).fill(null));
   const [numCompleted, setNumCompleted] = useState(0);
-  const { uid, setUid } = useUser();
+
+  useEffect(() => {
+    const fetchNumCompleted = async () => {
+      try {
+  
+        const response = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_SERVER}/user/getPingoStats`, {
+          method: "POST",
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            userId: uid
+          }),
+        });
+  
+        const data = await response.json();
+  
+        if (data.success) {
+          setNumCompleted(data.today_score);
+        }
+      } catch (error) {
+        console.log('Error:', error);
+      }
+    };
+
+    const fetchPrompts = async () => {
+      try {
+  
+        const response = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_SERVER}/user/getPrompts`, {
+          method: "POST",
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            userId: uid
+          }),
+        });
+  
+        const data = await response.json();
+  
+        if (data.success) {
+          setPrompts(data.prompts);
+        }
+      } catch (error) {
+        console.log('Error:', error);
+      }
+    };
+
+    const fetchPics = async () => {
+      try {
+  
+        const response = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_SERVER}/user/getUserImages`, {
+          method: "POST",
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            userId: uid
+          }),
+        });
+  
+        const data = await response.json();
+  
+        if (data.success) {
+          setPics(data.today_pictures);
+        }
+      } catch (error) {
+        console.log('Error:', error);
+      }
+    };
+
+    fetchNumCompleted();
+    fetchPrompts();
+    fetchPics();
+  }, [uid]);
 
   if (!fontsLoaded && !fontError) {
     console.log("Error loading fonts");

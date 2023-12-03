@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, ScrollView, Text, TextInput, Button, Image, StyleSheet, Pressable } from 'react-native';
 import { Icon } from 'react-native-elements';
 import appLogo from '../assets/pingo-icon.png';
@@ -7,7 +7,7 @@ import { useFonts, JosefinSans_700Bold, JosefinSans_500Medium, InterTight_600Sem
 
 function FriendPingoSquare({ prompt, pic }) {
   
-    if (pic !== null && pic !== undefined) {
+    if (pic !== null && pic !== undefined && pic !== "") {
       return (
         <View style={styles.square}>
           <View style={styles.picContainer}>
@@ -24,13 +24,13 @@ function FriendPingoSquare({ prompt, pic }) {
                       style={styles.picAddButton}
                   >
                       <Icon
-                          name="camera-plus"
+                          name="emoticon-sad-outline"
                           type="material-community"
                           color="#333330"
-                          size={35}
+                          size={42}
                       />
                   </Pressable>
-                  <Text style={styles.picInfoText}>Tap to Take Picture</Text>
+                  <Text style={styles.picInfoText}>No picture available</Text>
               </View>
               <Text style={styles.promptText}>{prompt}</Text>
           </View>
@@ -42,6 +42,10 @@ function FriendPingoSquare({ prompt, pic }) {
 function FriendPingoCard({ prompts, pics }) {
     const rows = 3;
     const cols = 3;
+    
+    if (!prompts || !pics || prompts.length === 0 || pics.length === 0) {
+      return <Text style={styles.loadingText}>Loading...</Text>;
+    }
   
     const chunkArray = (arr, size) => {
       const chunkedArray = [];
@@ -67,20 +71,106 @@ function FriendPingoCard({ prompts, pics }) {
 }
 
 const FriendsScreen = ({ navigation }) => {
+  const { uid, setUid } = useUser();
   let [fontsLoaded, fontError] = useFonts({
     JosefinSans_700Bold, JosefinSans_500Medium, InterTight_600SemiBold, InterTight_500Medium, InterTight_700Bold
   });
 
-  const { uid, setUid } = useUser();
-  const [ friendIDs, setFriendIDs ] = useState(Array(2).fill("testFriendUID"));
-  const [ friendUsernames, setFriendUsernames ] = useState(Array(2).fill("testFriendUsername"));
-  const [ friendPrompts, setFriendPrompts ] = useState([Array(9).fill("testPrompt"), Array(9).fill("testPrompt")]);
-  const [ friendPics, setFriendPics ] = useState([Array(9).fill("https://static.scientificamerican.com/sciam/cache/file/DB4E849F-5267-4A4C-A8A1F8AB1344C945_source.jpg?w=590&h=800&8397FFEE-1F26-49BC-98ECB53FE3F8A6D6"), Array(9).fill("https://static.scientificamerican.com/sciam/cache/file/DB4E849F-5267-4A4C-A8A1F8AB1344C945_source.jpg?w=590&h=800&8397FFEE-1F26-49BC-98ECB53FE3F8A6D6")]);
+  const [ friendIds, setFriendIds ] = useState([]);
+  const [ friendUsernames, setFriendUsernames ] = useState([]);
+  const [ friendPrompts, setFriendPrompts ] = useState([]);
+  const [ friendPics, setFriendPics ] = useState([]);
+  const [ recommendedFriendsIds, setRecommendedFriendsIds ] = useState([]);
+  const [ recommendedFriendsUsernames, setRecommendedFriendsUsernames ] = useState([]);
+
+  useEffect(() => {
+
+    const fetchFriendData = async () => {
+      try {
+        const response = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_SERVER}/user/getFriendData`, {
+          method: "POST",
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            userId: uid
+          }),
+        });
+  
+        const data = await response.json();
+  
+        if (data.success) {
+  
+          setFriendIds(data.friendIds);
+          setFriendUsernames(data.friendUsernames);
+          setFriendPrompts(data.friendPrompts);
+          setFriendPics(data.friendPics);
+  
+        }
+      } catch (error) {
+        console.log("Error while retrieving friend data: " + error);
+      }
+    };
+
+    const fetchRecommendedFriends = async () => {
+      try {
+        const response = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_SERVER}/user/recommendFriends`, {
+          method: "POST",
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            userId: uid
+          }),
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          setRecommendedFriendsIds(data.recommendedFriendsIds);
+          setRecommendedFriendsUsernames(data.recommendedFriendsUsernames);
+        }
+
+      } catch (error) {
+        console.log("Error while retrieving recommended friends: " + error);
+      }
+    };
+
+    fetchFriendData();
+    fetchRecommendedFriends();
+  
+  }, [uid]);
 
   if (!fontsLoaded && !fontError) {
     console.log("Error loading fonts");
     return null;
   }
+
+  const addFriend = async (index) => {
+    try {
+      const response = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_SERVER}/user/addFriend`, {
+        method: "POST",
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: uid,
+          friendId: recommendedFriendsIds[index]
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!data.success) {
+        console.log("Error while retrieving recommended friends: " + data.message);
+      } else {
+        // RELOAD PAGE
+      }
+
+    } catch (error) {
+      console.log("Error while retrieving recommended friends: " + error);
+    }
+  };
 
   const navigateToProfile = () => {
     navigation.navigate('Profile');
@@ -100,24 +190,39 @@ const FriendsScreen = ({ navigation }) => {
           <Text style={styles.heading}>Friends</Text>
         </View>
         
-        <View style={styles.friendPingosContainer}>
-        {friendIDs.map((friendUID, index) => (
-            <View key={friendUID} style={styles.friendPingoContainer}>
-                <Text style={styles.subheading}>{friendUsernames[index]}</Text>
-                <FriendPingoCard prompts={friendPrompts[index]} pics={friendPics[index]} />
+        <View>
+          {friendIds.length > 0 ? (
+            <View style={styles.friendPingosContainer}>
+              {friendIds.map((friendUID, index) => (
+                <View key={friendUID} style={styles.friendPingoContainer}>
+                  <Text style={styles.subheading}>{friendUsernames[index]}</Text>
+                  <FriendPingoCard prompts={friendPrompts[index]} pics={friendPics[index]} />
+                </View>
+              ))}
             </View>
-        ))}
+          ) : null}
         </View>
-
-        <Text style={styles.subheading}>Add Friends</Text>
-        <View style={styles.friendContainer}>
-          <View style={styles.friendCard}>
-            <Text style={styles.friendName}>pshank</Text>
-          </View>
-          <View style={styles.friendCard}>
-            <Text style={styles.friendName}>rishauv</Text>
-          </View>
-        </View>
+        
+        {recommendedFriendsIds.length > 0 && (
+          <>
+            <Text style={styles.subheading}>Add Friends</Text>
+            <View style={styles.friendContainer}>
+              {recommendedFriendsIds.map((friendId, index) => (
+                <View key={friendId} style={styles.friendCard}>
+                  <Text style={styles.friendName}>{recommendedFriendsUsernames[index]}</Text>
+                  <Pressable style={styles.friendAddIcon} onPress={() => addFriend(index)}>
+                    <Icon
+                      name="account-plus"
+                      type="material-community"
+                      color="#ffffff"
+                      size={32}
+                    />
+                  </Pressable>
+                </View>
+              ))}
+            </View>
+          </>
+        )}
 
       </ScrollView>
 
@@ -196,7 +301,6 @@ const styles = StyleSheet.create({
     fontFamily: 'InterTight_700Bold',
     color: '#333330',
   },
-  
   bingoCard: {
     padding: 15,
     marginBottom: 15,
@@ -243,6 +347,12 @@ const styles = StyleSheet.create({
     padding: 5,
     textAlign: 'center'
   },
+  loadingText: {
+    color: '#666666',
+    fontSize: 25,
+    fontFamily: 'InterTight_500Medium',
+    textAlign: 'center'
+  },
   friendContainer: {
     width: '100%',
     alignItems: 'center',
@@ -254,12 +364,24 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 20,
     marginBottom: 10,
-    borderRadius: 50
+    borderRadius: 50,
+    flexDirection: 'row'
   },
   friendName: {
     color: 'white',
     fontSize: 22,
-    fontFamily: 'InterTight_600SemiBold'
+    fontFamily: 'InterTight_600SemiBold',
+    flex: 1,
+    justifyContent: 'center',
+    width: '100%',
+    lineHeight: 32,
+    paddingLeft: 12
+  },
+  friendAddIcon: {
+    flex: 1,
+    width: '100%',
+    alignItems: 'flex-end',
+    paddingRight: 12
   },
   navbar: {
     backgroundColor: '#ffffff',

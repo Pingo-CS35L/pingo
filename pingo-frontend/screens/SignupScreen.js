@@ -31,6 +31,7 @@ const SignUpScreen = ({ navigation }) => {
           },
           body: JSON.stringify({
               email: newEmail,
+              username: newUsername,
               password: newPassword,
           }),
       });
@@ -52,7 +53,7 @@ const SignUpScreen = ({ navigation }) => {
     }
   };
   
-  const fakeSignup = () => {
+  const fakeHandleSignup = () => {
     setNewEmail("");
     setNewUsername("");
     setNewPassword("");
@@ -107,7 +108,7 @@ const SignUpScreen = ({ navigation }) => {
           <Button title={showPassword ? 'Hide' : 'Show'} onPress={togglePasswordVisibility} />
         </View>
 
-        <Pressable style={styles.signUpButton} onPress={fakeSignup}>
+        <Pressable style={styles.signUpButton} onPress={handleSignup}>
           <Text style={styles.signUpButtonText}>Sign Up</Text>
         </Pressable>
 

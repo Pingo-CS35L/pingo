@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, ScrollView, Text, TextInput, Button, Image, StyleSheet, Pressable } from 'react-native';
 import { Icon } from 'react-native-elements';
 import appLogo from '../assets/pingo-icon.png';
@@ -6,16 +6,96 @@ import { useUser } from './../UserContext';
 import { useFonts, JosefinSans_700Bold, JosefinSans_500Medium, InterTight_600SemiBold, InterTight_500Medium, InterTight_700Bold } from '@expo-google-fonts/dev';
 
 const ProfileScreen = ({ navigation }) => {
+  
+  const { uid, setUid } = useUser();
   let [fontsLoaded, fontError] = useFonts({
     JosefinSans_700Bold, JosefinSans_500Medium, InterTight_600SemiBold, InterTight_500Medium, InterTight_700Bold
   });
 
-  const [email, setEmail] = useState('testdummy@gmail.com');
-  const [username, setUsername] = useState('testdummy');
+  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [totalPingos, setTotalPingos] = useState(0);
   const [totalSquares, setTotalSquares] = useState(0);
   const [squaresToday, setSquaresToday] = useState(0);
-  const { uid, setUid } = useUser();
+  const [friendsUsernames, setFriendsUsernames] = useState([]);
+
+  useEffect(() => {
+    const fetchUsernameAndEmail = async () => {
+      try {
+  
+        const response = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_SERVER}/user/getUserById`, {
+          method: "POST",
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            userId: uid
+          }),
+        });
+  
+        const data = await response.json();
+  
+        if (data.success) {
+          setEmail(data.user["email"]);
+          setUsername(data.user["username"]);
+        }
+      } catch (error) {
+        console.log('Error:', error);
+      }
+    };
+
+    const fetchStats = async () => {
+      try {
+  
+        const response = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_SERVER}/user/getPingoStats`, {
+          method: "POST",
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            userId: uid
+          }),
+        });
+  
+        const data = await response.json();
+  
+        if (data.success) {
+          setTotalPingos(data.total_completed_pingos);
+          setTotalSquares(data.total_completed_prompts);
+          setSquaresToday(data.today_score);
+        }
+      } catch (error) {
+        console.log('Error:', error);
+      }
+    };
+
+    const fetchFriends = async () => {
+      try {
+  
+        const response = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_SERVER}/user/getFriendsUsernames`, {
+          method: "POST",
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            userId: uid
+          }),
+        });
+  
+        const data = await response.json();
+  
+        if (data.success) {
+          setFriendsUsernames(data.friendUsernames);
+        }
+      } catch (error) {
+        console.log('Error:', error);
+      }
+    };
+
+    fetchUsernameAndEmail();
+    fetchStats();
+    fetchFriends();
+  }, [uid]);
 
   if (!fontsLoaded && !fontError) {
     console.log("Error loading fonts");
@@ -58,14 +138,19 @@ const ProfileScreen = ({ navigation }) => {
         <Text style={styles.statistic}><Text style={styles.boldStatistic}>{totalSquares}</Text> TOTAL SQUARES COMPLETED</Text>
         <Text style={styles.statistic}><Text style={styles.boldStatistic}>{squaresToday}/9</Text> SQUARES COMPLETED TODAY</Text>
 
-        <Text style={styles.subheading}>Friends</Text>
-        <View style={styles.friendContainer}>
-          <View style={styles.friendCard}>
-            <Text style={styles.friendName}>pshank</Text>
-          </View>
-          <View style={styles.friendCard}>
-            <Text style={styles.friendName}>rishauv</Text>
-          </View>
+        <View>
+          {friendsUsernames.length > 0 ? (
+            <>
+              <Text style={styles.subheading}>Friends</Text>
+              <View style={styles.friendContainer}>
+                {friendsUsernames.map((friendUsername) => (
+                  <View style={styles.friendCard} key={friendUsername}>
+                    <Text style={styles.friendName}>{friendUsername}</Text>
+                  </View>
+                ))}
+              </View>
+            </>
+          ) : null}
         </View>
 
         <Pressable style={styles.logoutButton} onPress={logout}>
@@ -103,8 +188,7 @@ const styles = StyleSheet.create({
   },
   container: {
     backgroundColor: '#A9E8BF',
-    flexGrow: 1,
-    justifyContent: 'space-between',
+    flexGrow: 1
   },
   header: {
     backgroundColor: '#A9E8BF',
@@ -213,6 +297,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     width: '35%',
     borderRadius: 80,
+    marginTop: 40,
     marginBottom: 120,
   },
   logoutButtonText: {
