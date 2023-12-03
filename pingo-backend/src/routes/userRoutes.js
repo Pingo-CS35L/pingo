@@ -7,7 +7,7 @@ import {
     onAuthStateChanged,
 } from "firebase/auth";
 import { master_prompts } from "../promptsList.js";
-import { collection, deleteDoc, doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
+import { collection, deleteDoc, doc, getDoc, getDocs, setDoc, updateDoc } from "firebase/firestore";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 const userRouter = express.Router();
 const auth = getAuth(firebaseApp);
@@ -94,6 +94,8 @@ userRouter.post("/signup", async (req, res) => {
             latest_prompts_pictures: Array(9).fill(""),
         };
 
+        // GENERATE PROMPTS FOR NEW USER
+
         setDoc(doc(database, "users", user.uid), newUserData);
 
         return res
@@ -112,17 +114,17 @@ userRouter.post("/signup", async (req, res) => {
 // NOTE: Database will hold url to images, so calling get() on the database will return a url which will need to be processed farther. (Probably better to do on frontend?)
 userRouter.post("/getUserImages", async (req, res) => {
     try {
-        const { id } = req.body;
+        const { userId } = req.body;
 
-        if (id === undefined) {
+        if (userId === undefined) {
             return res
                 .status(401)
                 .json({
                     success: false,
-                    message: "id is required in request body.",
+                    message: "userId is required in request body.",
                 });
         }
-        const docRef = doc(database, "users", id);
+        const docRef = doc(database, "users", userId);
         const docSnap = await getDoc(docRef);
 
         if (!docSnap.exists()) {
@@ -130,37 +132,70 @@ userRouter.post("/getUserImages", async (req, res) => {
                 .status(401)
                 .json({
                     success: false,
-                    message: "No User Found with that ID",
+                    message: "No User Found with that userId",
                 });
+        }
+
+        const data = docSnap.data();
+
+        const lastTimestamp = data["last_completed_pingo"];
+        const dateNow = new Date().toLocaleDateString("en-US", {
+            year: "2-digit",
+            month: "2-digit",
+            day: "2-digit",
+        });
+        const timeStamp = new Date(lastTimestamp).toLocaleDateString("en-US", {
+            year: "2-digit",
+            month: "2-digit",
+            day: "2-digit",
+        });
+        
+        let pics = [];
+
+        if (timeStamp && dateNow !== timeStamp) {
+
+            const generatedPrompts = generatePrompts();
+            pics = Array(9).fill("");
+
+            await updateDoc(docRef, {
+                latest_prompts: generatedPrompts,
+                last_completed_pingo: dateNow,
+                latest_completed_prompts: 0,
+                latest_prompts_pictures: pics,
+            });
+            
+        } else {
+            pics = data["latest_prompts_pictures"];
         }
 
         return res
             .status(200)
             .json({
                 success: true,
-                today_pictures: docSnap.data()["latest_prompts_pictures"],
+                today_pictures: pics,
             });
+
     } catch (error) {
         console.log(error);
         return res
             .status(403)
-            .json({ success: false, message: "Error retrieving user" });
+            .json({ success: false, message: "Error retrieving user images." });
     }
 });
 
 userRouter.post("/getPingoStats", async (req, res) => {
     try {
-        const { id } = req.body;
+        const { userId } = req.body;
 
-        if (id === undefined) {
+        if (userId === undefined) {
             return res
                 .status(401)
                 .json({
                     success: false,
-                    message: "id is required in request body.",
+                    message: "userId is required in request body.",
                 });
         }
-        const docRef = doc(database, "users", id);
+        const docRef = doc(database, "users", userId);
         const docSnap = await getDoc(docRef);
 
         if (!docSnap.exists()) {
@@ -168,7 +203,7 @@ userRouter.post("/getPingoStats", async (req, res) => {
                 .status(401)
                 .json({
                     success: false,
-                    message: "No User Found with that ID",
+                    message: "No User Found with that userId",
                 });
         }
 
@@ -203,18 +238,18 @@ function generatePrompts() {
 
 userRouter.post("/getPrompts", async (req, res) => {
     try {
-        const { id } = req.body;
+        const { userId } = req.body;
 
-        if (id === undefined) {
+        if (userId === undefined) {
             return res
                 .status(401)
                 .json({
                     success: false,
-                    message: "id is required in request body.",
+                    message: "userId is required in request body.",
                 });
         }
 
-        const docRef = doc(database, "users", id);
+        const docRef = doc(database, "users", userId);
         const docSnap = await getDoc(docRef);
 
         if (!docSnap.exists()) {
@@ -222,7 +257,7 @@ userRouter.post("/getPrompts", async (req, res) => {
                 .status(401)
                 .json({
                     success: false,
-                    message: "No User Found with that ID",
+                    message: "No User Found with that userId",
                 });
         }
         const data = docSnap.data();
@@ -262,7 +297,7 @@ userRouter.post("/getPrompts", async (req, res) => {
                     .json({ success: false, message: "Error generating prompts" });
             }
         } else {
-            const storedPrompts = docSnap.data()["latest_prompts"];
+            const storedPrompts = data["latest_prompts"];
             return res
                 .status(200)
                 .json({
@@ -296,17 +331,17 @@ userRouter.get("/getAllUsers", async (req, res) => {
 // get a single user by id
 userRouter.post("/getUserById", async (req, res) => {
     try {
-        const { id } = req.body;
+        const { userId } = req.body;
 
-        if (id === undefined) {
+        if (userId === undefined) {
             return res
                 .status(401)
                 .json({
                     success: false,
-                    message: "id is required in request body.",
+                    message: "userId is required in request body.",
                 });
         }
-        const docRef = doc(database, "users", id);
+        const docRef = doc(database, "users", userId);
         const docSnap = await getDoc(docRef);
 
         if (!docSnap.exists()) {
@@ -314,7 +349,7 @@ userRouter.post("/getUserById", async (req, res) => {
                 .status(401)
                 .json({
                     success: false,
-                    message: "No User Found with that ID",
+                    message: "No User Found with that userId",
                 });
         }
 
@@ -327,37 +362,18 @@ userRouter.post("/getUserById", async (req, res) => {
     }
 });
 
-// update user info in db
-// userRouter.put('/updateUserInfo', async (req, res) => {
-//         const body = req.body;
-//         const id = req.params.id;
-//         const updates = {};
-//         Object.keys(body).forEach(key => {
-//             updates[`${key}`] = body[key];
-//         });
-//         firestore.collection('users')
-//         .doc(id)
-//         .update(updates)
-//         .then(() => {
-//         res.status(200).json({ success: true, message: 'User updated'});
-//         })
-//         .catch(err => {
-//         res.status(500).json({ success: false, err });
-//         });
-//  });
-
 // delete user from db
 userRouter.delete("/deleteUser", async (req, res) => {
-    const { id } = req.body;
-    if (id === undefined) {
+    const { userId } = req.body;
+    if (userId === undefined) {
         return res
             .status(401)
             .json({
                 success: false,
-                message: "id is required in request body.",
+                message: "userId is required in request body.",
             });
     }
-    await deleteDoc(doc(database, "users", id))
+    await deleteDoc(doc(database, "users", userId))
         .then(() => {
             res.status(200).json({ success: true, message: "user deleted" });
         })
@@ -482,7 +498,7 @@ userRouter.post("/getAllFriends", async (req, res) => {
                 .status(401)
                 .json({
                     success: false,
-                    message: "UserId is required in request body.",
+                    message: "userId is required in request body.",
                 });
         }
         const docRef = doc(database, "users", userId);
@@ -549,8 +565,104 @@ userRouter.post("/getFriendsUsernames", async (req, res) => {
     }
 });
 
+userRouter.post("/getFriendData", async (req, res) => {
+    try {
+        const { userId } = req.body;
+
+        if (userId === undefined) {
+            return res
+                .status(401)
+                .json({
+                    success: false,
+                    message: "UserId is required in request body.",
+                });
+        }
+
+        const docRef = doc(database, "users", userId);
+        const docSnap = await getDoc(docRef);
+
+        if (!docSnap.exists()) {
+            return res
+                .status(401)
+                .json({ success: false, message: "No such user found." });
+        }
+
+        const friendIds = docSnap.data()["friends"];
+        let friendUsernames = [];
+        let friendPrompts = [];
+        let friendPics = [];
+
+        for (let i = 0; i < friendIds.length; i++) {
+            const friendId = friendIds[i];
+
+            const friendDocRef = doc(database, "users", friendId);
+            const friendDocSnap = await getDoc(friendDocRef);
+
+            if (!friendDocSnap.exists()) {
+                return res
+                    .status(500)
+                    .json({
+                        success: false,
+                        message: "Friend found that is not a valid user.",
+                    });
+            }
+
+            friendUsernames.push(friendDocSnap.data()["username"]);
+
+            const lastTimestamp = friendDocSnap.data()["last_completed_pingo"];
+            const dateNow = new Date().toLocaleDateString("en-US", {
+                year: "2-digit",
+                month: "2-digit",
+                day: "2-digit",
+            });
+            const timeStamp = new Date(lastTimestamp).toLocaleDateString("en-US", {
+                year: "2-digit",
+                month: "2-digit",
+                day: "2-digit",
+            });
+
+            let prompts = [];
+            let pics = [];
+
+            if (timeStamp && dateNow !== timeStamp) {
+
+                prompts = generatePrompts();
+                pics = Array(9).fill("");
+
+                await updateDoc(friendDocRef, {
+                    latest_prompts: prompts,
+                    last_completed_pingo: dateNow,
+                    latest_completed_prompts: 0,
+                    latest_prompts_pictures: pics,
+                });
+
+            } else {
+                prompts = friendDocSnap.data()["latest_prompts"];
+                pics = friendDocSnap.data()["latest_prompts_pictures"];
+            }
+
+            friendPrompts.push(prompts);
+            friendPics.push(pics);
+        }
+
+        return res
+            .status(200)
+            .json({ success: true, friendIds: friendIds, friendUsernames: friendUsernames, friendPrompts: friendPrompts, friendPics, friendPics });
+
+    } catch (error) {
+        console.log(error);
+        return res
+            .status(500)
+            .json({
+                success: false,
+                message: "Failed to get friend data",
+            });
+    }
+});
+
 userRouter.post("/recommendFriends", async (req, res) => {
     try {
+
         const { userId } = req.body;
 
         if (userId === undefined) {
@@ -575,6 +687,7 @@ userRouter.post("/recommendFriends", async (req, res) => {
         }
 
         const recommendedFriendsIds = [];
+        const recommendedFriendsUsernames = [];
 
         const currentUserFriendIds = docSnap.data()["friends"];
         for (let i = 0; i < currentUserFriendIds.length; i++) {
@@ -594,27 +707,63 @@ userRouter.post("/recommendFriends", async (req, res) => {
             const friendsFriendIds = friendDocSnap.data()["friends"];
             for (let j = 0; j < friendsFriendIds.length; j++) {
                 const friendFriendId = friendsFriendIds[j];
+
                 if (friendFriendId !== userId && !currentUserFriendIds.includes(friendFriendId)) {
-                    recommendedFriendsIds.add(friendFriendId);
+
+                    const friendFriendDocRef = doc(database, "users", friendFriendId);
+                    const friendFriendDocSnap = await getDoc(friendDocRef);
+
+
+                    if (!friendFriendDocSnap.exists()) {
+                        return res
+                            .status(500)
+                            .json({
+                                success: false,
+                                message: "Friend friend found that does not exist as a user.",
+                            });
+                    }
+
+                    recommendedFriendsIds.push(friendFriendId);
+                    recommendedFriendsUsernames.push(friendFriendDocSnap.data()["username"]);
                 }
             }
         }
 
         if (recommendedFriendsIds.length === 0) {
+
             for(let i = 0; i < 5; i++) {
                 const usersCollection = collection(database, 'users');
                 const querySnapshot = await getDocs(usersCollection);
+                
                 const totalUsers = querySnapshot.size;
 
-                // Step 2: Generate a random number within the range of document indices
                 const randomIndex = Math.floor(Math.random() * totalUsers);
+                let randIds = [];
 
-                // Step 3: Retrieve the document at the randomly generated index
-                const query = await getDocs(query(usersCollection, orderBy('createdAt'), limit(1), startAt(randomIndex)));
-                const randomUserId = (query.docs[0]).id;
+                querySnapshot.forEach((doc) => {
+                    const randId = doc.id;
+                    randIds.push(randId);
+                });
+
+                const randomUserId = randIds[randomIndex];
 
                 if (randomUserId !== userId && !currentUserFriendIds.includes(randomUserId)) {
-                    recommendedFriendsIds.add(randomUserId);
+                    const foundFriendDocRef = doc(database, "users", randomUserId);
+                    const foundFriendDocSnap = await getDoc(foundFriendDocRef);
+
+                    if (!foundFriendDocSnap.exists()) {
+                        return res
+                            .status(500)
+                            .json({
+                                success: false,
+                                message: "Random friend found that does not exist as a user.",
+                            });
+                    }
+                    
+                    if (!recommendedFriendsIds.includes(randomUserId)) {
+                        recommendedFriendsIds.push(randomUserId);
+                        recommendedFriendsUsernames.push(foundFriendDocSnap.data()["username"]);
+                    }
                 }
             }
         }
@@ -624,11 +773,12 @@ userRouter.post("/recommendFriends", async (req, res) => {
             .json({
                 success: true,
                 recommendedFriendsIds: recommendedFriendsIds,
+                recommendedFriendsUsernames: recommendedFriendsUsernames
             });
     } catch (error) {
         return res
             .status(500)
-            .json({ success: false, message: "Failed to recommend friends" });
+            .json({ success: false, message: "Failed to recommend friends. " + error });
     }
 });
 
@@ -648,7 +798,7 @@ userRouter.post('/uploadImage', async (req, res) => {
 
     const downloadURL = await getDownloadURL(snapshot.ref);
 
-    return res.status(200).json({ success: true, downloadURL });
+    return res.status(200).json({ success: true, url: downloadURL });
   } catch (error) {
     console.error('Error uploading image:', error);
     return res.status(500).json({ success: false, error: error.message });
