@@ -109,7 +109,7 @@ userRouter.post("/signup", async (req, res) => {
 });
 
 // NOTE: Database will hold url to images, so calling get() on the database will return a url which will need to be processed farther. (Probably better to do on frontend?)
-userRouter.get("/getUserImages", async (req, res) => {
+userRouter.post("/getUserImages", async (req, res) => {
     try {
         const { id } = req.body;
 
@@ -147,7 +147,7 @@ userRouter.get("/getUserImages", async (req, res) => {
     }
 });
 
-userRouter.get("/getPingoStats", async (req, res) => {
+userRouter.post("/getPingoStats", async (req, res) => {
     try {
         const { id } = req.body;
 
@@ -174,6 +174,7 @@ userRouter.get("/getPingoStats", async (req, res) => {
         return res
             .status(200)
             .json({
+                success: true,
                 today_score: docSnap.data()["latest_completed_prompts"],
                 total_completed_pingos: docSnap.data()["completed_pingos"],
                 total_completed_prompts: docSnap.data()["completed_prompts"],
@@ -181,25 +182,19 @@ userRouter.get("/getPingoStats", async (req, res) => {
     } catch (error) {
         console.log(error);
         return res
-            .status(403)
+            .status(500)
             .json({ success: false, message: "Error retrieving user" });
     }
 });
 
 function generatePrompts() {
+    let promptsCopy = [...master_prompts];
     let prompt_arr = [];
-    let selectedPrompts = new Set();
 
-    while (prompt_arr.length < 9) {
-        let num = Math.floor(Math.random() * 5);
-        let promptsArr = master_prompts[num];
-        let randomIndex = Math.floor(Math.random() * promptsArr.length);
-        let selectedPrompt = promptsArr[randomIndex];
-
-        if (!selectedPrompts.has(selectedPrompt)) {
-            selectedPrompts.add(selectedPrompt);
-            prompt_arr.push(selectedPrompt);
-        }
+    while (prompt_arr.length < 9 && promptsCopy.length > 0) {
+        const randomIndex = Math.floor(Math.random() * promptsCopy.length);
+        const selectedPrompt = promptsCopy.splice(randomIndex, 1)[0];
+        prompt_arr.push(selectedPrompt);
     }
 
     return prompt_arr;
@@ -255,6 +250,7 @@ userRouter.post("/getPrompts", async (req, res) => {
                 return res
                     .status(200)
                     .json({
+                        success: true,
                         message: "Generated Prompts",
                         prompts: generatedPrompts,
                     });
@@ -262,20 +258,23 @@ userRouter.post("/getPrompts", async (req, res) => {
                 console.error("Error generating prompts:", error);
                 return res
                     .status(500)
-                    .json({ message: "Error generating prompts" });
+                    .json({ success: false, message: "Error generating prompts" });
             }
         } else {
             const storedPrompts = docSnap.data()["latest_prompts"];
             return res
                 .status(200)
                 .json({
+                    success: true,
                     message: "Returned Latest Prompts",
                     prompts: storedPrompts,
                 });
         }
     } catch (err) {
         console.error(err);
-        return res.status(401).send("Error in retrieving prompts");
+        return res
+            .status(500)
+            .json({ success: false, message: "Error retrieving prompts" });
     }
 });
 
@@ -284,17 +283,17 @@ userRouter.get("/getAllUsers", async (req, res) => {
     try {
         const snapshot = await firestore.collection("users").get();
         const data = snapshot.docs.map((doc) => doc.data());
-        return res.status(200).json(data);
+        return res.status(200).json({ success: true, data });
     } catch (error) {
         console.log(error);
         return res
-            .status(403)
+            .status(500)
             .json({ success: false, error: "Error retrieving users" });
     }
 });
 
 // get a single user by id
-userRouter.get("/getUserById", async (req, res) => {
+userRouter.post("/getUserById", async (req, res) => {
     try {
         const { id } = req.body;
 
@@ -318,11 +317,11 @@ userRouter.get("/getUserById", async (req, res) => {
                 });
         }
 
-        return res.status(200).json(docSnap.data());
+        return res.status(200).json({ success: true, user: docSnap.data() });
     } catch (error) {
         console.log(error);
         return res
-            .status(403)
+            .status(500)
             .json({ success: false, message: "Error retrieving user" });
     }
 });
@@ -362,7 +361,7 @@ userRouter.delete("/deleteUser", async (req, res) => {
             res.status(200).json({ success: true, message: "user deleted" });
         })
         .catch((err) => {
-            res.status(500).json({ success: false, err });
+            res.status(500).json({ success: false, message: err });
         });
 });
 
@@ -474,7 +473,7 @@ userRouter.delete("/deleteFriend", async (req, res) => {
     }
 });
 
-userRouter.get("/getAllFriends", async (req, res) => {
+userRouter.post("/getAllFriends", async (req, res) => {
     try {
         const { userId } = req.body;
         if (userId === undefined) {
@@ -492,7 +491,7 @@ userRouter.get("/getAllFriends", async (req, res) => {
                 .status(401)
                 .json({ success: false, message: "No such user found." });
         }
-        return res.status(200).json(docSnap.data()["friends"]);
+        return res.status(200).json({ success: true, friendIds: docSnap.data()["friends"] });
     } catch (error) {
         return res
             .status(500)
@@ -500,7 +499,7 @@ userRouter.get("/getAllFriends", async (req, res) => {
     }
 });
 
-userRouter.get("/getFriendsUsernames", async (req, res) => {
+userRouter.post("/getFriendsUsernames", async (req, res) => {
     try {
         const { userId } = req.body;
         if (userId === undefined) {
@@ -532,9 +531,8 @@ userRouter.get("/getFriendsUsernames", async (req, res) => {
                         message: "Friend found that is not a valid user.",
                     });
             }
-            console.log(friendDocSnap.data());
+
             friendUsernames.push(friendDocSnap.data()["username"]);
-            console.log(friendUsernames);
         }
         return res
             .status(200)
@@ -550,7 +548,7 @@ userRouter.get("/getFriendsUsernames", async (req, res) => {
     }
 });
 
-userRouter.get("/recommendFriends", async (req, res) => {
+userRouter.post("/recommendFriends", async (req, res) => {
     try {
         const { userId } = req.body;
 
