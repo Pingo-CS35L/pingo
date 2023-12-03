@@ -32,7 +32,7 @@ The front-end of this mobile app was built using React Native, and the backend i
 ## Mandatory Pre-Requisites
 1. Ensure your mobile device and server are connected to the same LAN.
 2. Ensure you have Expo Go installed on your mobile device.
-## Backend Server Setup
+## Backend Server Setup Option #1: Ethernet or Local Hosting
 
 1. Run the Shell Script `localip_mac` to quickly access your local network IP address for Mac OS Users, or run the PowerShell Script `localip_windows.ps1` for Windows users.
     - We recommend using ethernet connection for Mac OS Users to leverage the public IP addresses provided by UCLA through wired connection.
@@ -40,10 +40,12 @@ The front-end of this mobile app was built using React Native, and the backend i
 2. Once the local network IP Address is obtained, go to the `pingo-backend/src/serverConfig.js` file and replace the variable called `localIPAddress` with your server's local IP address from running the earlier script.
     - If you would like Node.js to automatically assign an available port for your server to listen on, please set `portNum = 0`.
 
-3. Then, create a .env file in the `pingo-frontend` directory (path would be `pingo-frontend/.env`), and create an environment variable called `EXPO_PUBLIC_BACKEND_SERVER`, and set it to the same IP address that you retrieved earlier. For example, if my IP address is 192.168.1.01 and I'm using port 8080, then my `pingo-frontend/.env` would look like the following:
-```
-EXPO_PUBLIC_BACKEND_SERVER=http://192.168.1.01:8080
-```
+## Backend Server Setup Option #2: ngrok Hosting
+
+1. Go to the `pingo-backend/src/serverConfig.js` file and set the variable called `localIPAddress` to `"localhost"`. Make sure the `portNum` variable is set to `8080`.
+2. Then, go to [ngrok.com](ngrok.com), and create an account or sign-in into your existing account. Then, on the website, go to the left navigation menu and open the **Setup & Installation** tab. Download ngrok for your machine, then unzip the downloaded .zip file into a location that you'll remember. You should see `ngrok.exe` in the installed location. Double-click `ngrok.exe` to open the ngrok terminal.
+3. At the ngrok.com website, in the left nagivation menu, in the **Setup & Installation** tab, go to the 2nd step, and enter that command in the ngrok terminal. It should be something like: `ngrok config add-authtoken <auth_token>`. Your `<auth_token>` should be your unique auth_token. This will add your local machine as an ngrok agent.
+
 
 ## Launching Pingo
 1. You'll need two terminals / command-line interfaces to simulate the server and client experience.
@@ -52,8 +54,13 @@ EXPO_PUBLIC_BACKEND_SERVER=http://192.168.1.01:8080
 npm install
 npm start
 ```
+**IMPORTANT:** If you're hosting via ngrok, then after running the server locally, then go to the ngrok terminal (open ngrok.exe), and enter the command: `ngrok http 8080`. You should see a long link under `Forwarding`, which you can use to call from the Front-End application. Save this link.
 
-2. In the other terminal, navigate your working directory to `pingo-frontend`, and run the following commands:
+2. In the other terminal, navigate your working directory to `pingo-frontend`. Then, create a .env file in the `pingo-frontend` directory (path would be `pingo-frontend/.env`), and create an environment variable called `EXPO_PUBLIC_BACKEND_SERVER`. If you're using localhosting or an ethernet connection, set the ENV EXPO_PUBLIC_BACKEND_SERVER variable to the same IP address that you retrieved earlier, with an `:8080` attached onto it. For example, if my IP address is 192.168.1.01 and I'm using port 8080, then my `pingo-frontend/.env` would look like the following:
+```
+EXPO_PUBLIC_BACKEND_SERVER=http://192.168.1.01:8080
+```
+If you're using ngrok hosting, set the EXPO_PUBLIC_BACKEND_SERVER variable to the ngrok link that you got earlier. Ensure that both the local server is running, and the ngrok tunnel connection is running, and run the following commands:
 ```
 npm install
 npm start
