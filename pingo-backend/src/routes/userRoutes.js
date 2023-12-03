@@ -188,13 +188,20 @@ userRouter.get("/getPingoStats", async (req, res) => {
 
 function generatePrompts() {
     let prompt_arr = [];
+    let selectedPrompts = new Set();
+
     while (prompt_arr.length < 9) {
         let num = Math.floor(Math.random() * 5);
         let promptsArr = master_prompts[num];
-        prompt_arr.push(
-            promptsArr[Math.floor(Math.random() * promptsArr.length)]
-        );
+        let randomIndex = Math.floor(Math.random() * promptsArr.length);
+        let selectedPrompt = promptsArr[randomIndex];
+
+        if (!selectedPrompts.has(selectedPrompt)) {
+            selectedPrompts.add(selectedPrompt);
+            prompt_arr.push(selectedPrompt);
+        }
     }
+
     return prompt_arr;
 }
 
