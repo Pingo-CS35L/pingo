@@ -25,13 +25,14 @@ Additionally, users can add their friends on the app to see their Pingo boards t
 # Development
 
 Pingo was created as the final project for UCLA's COM SCI 35L course by students Pranav Sankar, Nishant Ray, Akshat Tirumalai, Krish Patel, Rishauv Kar-Roy (Discussion 1A). 
-The front-end of this mobile app was built using React Native, and the back-end is powered by Node.js.
+The front-end of this mobile app was built using [React Native](https://reactnative.dev), and the back-end is powered by [Node.js](https://nodejs.org/en).
 
 # Getting Started
 
 ## Mandatory Pre-Requisites
 1. Ensure your mobile device and server are connected to the same LAN.
-2. Ensure you have Expo Go installed on your mobile device.
+2. Ensure you have [Expo Go](https://expo.dev/client) installed on your mobile device.
+
 ## Backend Server Setup Option #1: Ethernet or Local Hosting
 
 1. Run the Shell Script `localip_mac` to quickly access your local network IP address for Mac OS Users, or run the PowerShell Script `localip_windows.ps1` for Windows users.
@@ -43,7 +44,7 @@ The front-end of this mobile app was built using React Native, and the back-end 
 ## Backend Server Setup Option #2: ngrok Hosting
 
 1. Go to the `pingo-backend/src/serverConfig.js` file and set the variable called `localIPAddress` to `"localhost"`. Make sure the `portNum` variable is set to `8080`.
-2. Then, go to [ngrok.com](ngrok.com), and create an account or sign-in into your existing account. Then, on the website, go to the left navigation menu and open the **Setup & Installation** tab. Download ngrok for your machine, then unzip the downloaded .zip file into a location that you'll remember. You should see `ngrok.exe` in the installed location. Double-click `ngrok.exe` to open the ngrok terminal.
+2. Then, go to [ngrok.com](https://ngrok.com), and create an account or sign-in into your existing account. Then, on the website, go to the left navigation menu and open the **Setup & Installation** tab. Download ngrok for your machine, then unzip the downloaded .zip file into a location that you'll remember. You should see `ngrok.exe` in the installed location. Double-click `ngrok.exe` to open the ngrok terminal.
 3. At the ngrok.com website, in the left nagivation menu, in the **Setup & Installation** tab, go to the 2nd step, and enter that command in the ngrok terminal. It should be something like: `ngrok config add-authtoken <auth_token>`. Your `<auth_token>` should be your unique auth_token. This will add your local machine as an ngrok agent.
 
 
