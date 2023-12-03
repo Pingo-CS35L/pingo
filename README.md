@@ -20,7 +20,7 @@ In order to win for the day, you must complete 3 prompts in a row - but you may 
 
 Our mission at Pingo is to foster healthy friendships and positive community involvement.
 We have carefully hand-picked the prompts displayed so that our users will engage in diverse experiences and activities that will have a positive impact on our users and those around them.
-Aditionally, users can add their friends on the app to see their Pingo boards too, allowing for healthy competition and a way for users to see what others are up to.
+Additionally, users can add their friends on the app to see their Pingo boards too, allowing for healthy competition and a way for users to see what others are up to.
 
 # Development
 
