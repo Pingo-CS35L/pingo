@@ -4,6 +4,7 @@ import { Icon } from 'react-native-elements';
 import { pickPrompts } from '../prompts';
 import appLogo from '../assets/pingo-icon.png';
 import { useUser } from './../UserContext';
+import Lightbox from 'react-native-lightbox';
 import { useFonts, JosefinSans_700Bold, InterTight_600SemiBold, InterTight_500Medium, InterTight_400Regular, InterTight_400Regular_Italic, InterTight_700Bold, NotoSansDisplay_400Regular } from '@expo-google-fonts/dev';
 
 const styles = StyleSheet.create({
@@ -128,47 +129,94 @@ const styles = StyleSheet.create({
     marginHorizontal: 8,
     alignItems: 'center',
     justifyContent: 'center',
-  }
+  }, 
+  picContainer: {
+    backgroundColor: 'white',
+    width: "100%",
+    height: 105,
+    borderRadius: 5,
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  enlargedImage: {
+    width: 300, // Adjust the width and height as needed
+    height: 300,
+    borderRadius: 5,
+  },
+  pic: {
+    width: '100%', // Set it to 100% to fill the parent container
+    height: '80%', // Set it to 100% to fill the parent container
+    borderRadius: 5,
+    overflow: 'hidden', // Hide any content that overflows the box
+  },
 });
 
-function PingoSquare({ prompt, pic, navigation}) {
-
+function PingoSquare({ prompt, pic, navigation, isStockPhoto, onStockPhotoPress }) {
   const navigateToCamera = () => {
-      navigation.navigate("CameraScreen");
+    navigation.navigate("CameraScreen");
   };
 
-  if (pic !== null && pic !== undefined) {
+  if (isStockPhoto) {
     return (
       <View style={styles.square}>
-        <View style={styles.picContainer}>
-          <Image source={{ uri: pic }} style={styles.pic} />
-        </View>
-        <Text style={styles.promptText}>{prompt}</Text>
+        <Lightbox
+          renderContent={() => (
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+              <Image source={require('../assets/download.jpeg')} style={styles.enlargedImage} />
+              <Text style={styles.promptText}>{prompt}</Text>
+            </View>
+          )}
+          underlayColor="white" 
+        >
+          <View style={styles.picContainer}>
+            <Image source={require('../assets/download.jpeg')} style={styles.pic} />
+            <Text style={styles.promptText}>{prompt}</Text>
+          </View>
+        </Lightbox>
+      </View>
+    );
+  } else if (pic !== null && pic !== undefined) {
+    return (
+      <View style={styles.square}>
+        <Lightbox
+          renderContent={() => (
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+              <Image source={{ uri: pic }} style={styles.enlargedImage} />
+              <Text style={styles.promptText}>{prompt}</Text>
+            </View>
+          )}
+          underlayColor="white" // Adjust the color of the underlay when the image is pressed
+        >
+          <View style={styles.picContainer}>
+            <Image source={{ uri: pic }} style={styles.pic} />
+            <Text style={styles.promptText}>{prompt}</Text>
+          </View>
+        </Lightbox>
       </View>
     );
   } else {
     return (
-        <View style={styles.square}>
-            <View style={styles.picContainer}>
-                <Pressable
-                    style={styles.picAddButton}
-                    onPress={navigateToCamera}
-                >
-                    <Icon
-                        name="camera-plus"
-                        type="material-community"
-                        color="#333330"
-                        size={35}
-                    />
-                </Pressable>
-                <Text style={styles.picInfoText}>Tap to Take Picture</Text>
-            </View>
-            <Text style={styles.promptText}>{prompt}</Text>
+      <View style={styles.square}>
+        <View style={styles.picContainer}>
+          <Pressable
+            style={styles.picAddButton}
+            onPress={navigateToCamera}
+          >
+            <Icon
+              name="camera-plus"
+              type="material-community"
+              color="#333330"
+              size={35}
+            />
+          </Pressable>
+          <Text style={styles.picInfoText}>Tap to Take Picture</Text>
         </View>
+        <Text style={styles.promptText}>{prompt}</Text>
+      </View>
     );
   }
-  
 }
+
 
 function PingoCard({ prompts, pics, navigation }) {
   const rows = 3;
@@ -189,7 +237,13 @@ function PingoCard({ prompts, pics, navigation }) {
       {gridPrompts.map((row, rowIndex) => (
         <View key={rowIndex} style={styles.bingoRow}>
           {row.map((prompt, colIndex) => (
-            <PingoSquare key={colIndex} prompt={prompt} navigation={navigation} pic={pics[rowIndex * cols + colIndex]} />
+            <PingoSquare
+              key={colIndex}
+              prompt={prompt}
+              navigation={navigation}
+              pic={pics[rowIndex * cols + colIndex]}
+              isStockPhoto={rowIndex === 1 && colIndex === 1} // Specify the index for the stock photo
+            />
           ))}
         </View>
       ))}
