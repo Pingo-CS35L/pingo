@@ -1,6 +1,6 @@
 #!/bin/bash
 
 # Supported for MacOS devices
-ip_address=$(ifconfig en0 | grep 'inet ' | awk '{print $2}')
+ip_address=$(ifconfig en6 | awk '/inet / {print $2}')
 
 echo $ip_address

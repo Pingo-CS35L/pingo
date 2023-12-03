@@ -1,5 +1,5 @@
 // SERVER CONFIGURATION
-const localIPAddress = "YOUR_IP_ADDRESS from localip shell script";
+const localIPAddress = "IP ADDRESS SERVER";
 const portNum = 8080;
 
 const backendServer = `http://${localIPAddress}:${portNum}`
