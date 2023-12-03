@@ -35,6 +35,7 @@ The front-end of this mobile app was built using React Native, and the backend i
 ## Backend Server Setup
 
 1. Run the Shell Script `localip_mac` to quickly access your local network IP address for Mac OS Users, or run the PowerShell Script `localip_windows.ps1` for Windows users.
+    - We recommend using ethernet connection for Mac OS Users to leverage the public IP addresses provided by UCLA through wired connection.
 
 2. Once the local network IP Address is obtained, go to the `pingo-backend/src/serverConfig.js` file and replace the variable called `localIPAddress` with your server's local IP address from running the earlier script.
     - If you would like Node.js to automatically assign an available port for your server to listen on, please set `portNum = 0`.
