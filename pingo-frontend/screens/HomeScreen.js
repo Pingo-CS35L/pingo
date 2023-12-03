@@ -242,7 +242,7 @@ function PingoCard({ prompts, pics, navigation }) {
               prompt={prompt}
               navigation={navigation}
               pic={pics[rowIndex * cols + colIndex]}
-              isStockPhoto={rowIndex === 1 && colIndex === 1} // Specify the index for the stock photo
+              isStockPhoto={false} // Change this to false for all cards
             />
           ))}
         </View>
@@ -250,6 +250,7 @@ function PingoCard({ prompts, pics, navigation }) {
     </View>
   );
 }
+
 
 const HomeScreen = ({ navigation }) => {
   const { uid, setUid } = useUser();
