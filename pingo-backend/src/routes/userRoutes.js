@@ -1,5 +1,5 @@
 import express from "express";
-import { firebaseApp, database } from "../firebase.js";
+import { firebaseApp, database, storage } from "../firebase.js";
 import {
     getAuth,
     signInWithEmailAndPassword,
@@ -8,6 +8,7 @@ import {
 } from "firebase/auth";
 import { master_prompts } from "../promptsList.js";
 import { collection, deleteDoc, doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 const userRouter = express.Router();
 const auth = getAuth(firebaseApp);
 
@@ -630,5 +631,30 @@ userRouter.post("/recommendFriends", async (req, res) => {
             .json({ success: false, message: "Failed to recommend friends" });
     }
 });
+
+// Route to upload images to Firebase Storage                                                                                           
+// Requires images to be of type 'file'                                                                                                 
+userRouter.post('/uploadImage', async (req, res) => {
+  try {
+    const { file } = req.files;
+
+    if (!file) {
+      return res.status(400).json({ success: false, message: 'No file uploaded' });
+    }
+
+    const storageRef = ref(storage, 'images/' + file.name);
+
+    const snapshot = await uploadBytes(storageRef, file.data);
+
+    const downloadURL = await getDownloadURL(snapshot.ref);
+
+    return res.status(200).json({ success: true, downloadURL });
+  } catch (error) {
+    console.error('Error uploading image:', error);
+    return res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+
 
 export { userRouter };
