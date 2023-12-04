@@ -42,12 +42,29 @@ const CameraScreen = () => {
     navigation.goBack();
   };
 
-  const acceptPhoto = () => {
-    // You can handle the logic for finalizing the photo here
-    // For example, save the photo or perform any necessary actions
-    // Once done, navigate back to the previous screen
-    navigation.goBack();
-  };
+ const acceptPhoto = async () => {
+  const formData = new FormData();
+  formData.append('file', capturedPhoto); // Adjusted field name to match backend
+
+  try {
+    const response = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_SERVER}/user/uploadImage`, {
+      method: 'POST',
+      body: formData,
+    });
+
+    if (response.ok) {
+      console.log('Photo uploaded successfully');
+    } else {
+      console.error('Failed to upload photo');
+    }
+  } catch (error) {
+    console.error('Error uploading photo:', error.message);
+  }
+
+  navigation.goBack();
+};
+
+  
 
   if (hasPermission === null) {
     return <View />;
