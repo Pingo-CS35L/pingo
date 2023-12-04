@@ -1,4 +1,5 @@
 import express from "express";
+import multer from "multer";
 import { firebaseApp, database, storage } from "../firebase.js";
 import {
     getAuth,
@@ -9,8 +10,10 @@ import {
 import { master_prompts } from "../promptsList.js";
 import { collection, deleteDoc, doc, getDoc, getDocs, setDoc, updateDoc } from "firebase/firestore";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
+
 const userRouter = express.Router();
 const auth = getAuth(firebaseApp);
+const upload = multer({ storage: multer.memoryStorage() });
 
 // Middleware to get the current user's UID
 const getCurrentUserUID = (req, res, next) => {
@@ -789,24 +792,25 @@ userRouter.post("/recommendFriends", async (req, res) => {
 });
 
 // Route to upload images to Firebase Storage                                                                                           
-// Requires images to be of type 'file'                                                                                                 
-userRouter.post('/uploadImage', async (req, res) => {
+// Requires images to be of type 'file' -> Inputs from frontend are not type 'file', should be fixed to handle this now.                                                                                               
+userRouter.post('/uploadImage', upload.single('file'), async function(req, res) {
   try {
-    const { file } = req.files;
-
+    const file = req.file; 
+      
     if (!file) {
-      return res.status(400).json({ success: false, message: 'No file uploaded' });
+      return res.status(400).json({ success: false, message: "No file uploaded" });
     }
 
-    const storageRef = ref(storage, 'images/' + file.name);
+    const storageRef = ref(storage, 'images/' + file.originalname);
 
-    const snapshot = await uploadBytes(storageRef, file.data);
+    const snapshot = await uploadBytes(storageRef, file.buffer);
 
     const downloadURL = await getDownloadURL(snapshot.ref);
 
     return res.status(200).json({ success: true, url: downloadURL });
+      
   } catch (error) {
-    console.error('Error uploading image:', error);
+    console.error("Error uploading image:", error);
     return res.status(500).json({ success: false, error: error.message });
   }
 });
