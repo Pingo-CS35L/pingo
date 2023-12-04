@@ -82,19 +82,25 @@ userRouter.post("/signup", async (req, res) => {
         // Signed up
         const user = userCredential.user;
 
+        const dateNow = new Date().toLocaleDateString("en-US", {
+            year: "2-digit",
+            month: "2-digit",
+            day: "2-digit",
+        });
+
+        const generatedPrompts = generatePrompts();
+
         const newUserData = {
             username: username,
             email: email,
             completed_pingos: 0,
             completed_prompts: 0,
             friends: [],
-            last_completed_pingo: "",
+            last_completed_pingo: dateNow,
             latest_completed_prompts: 0,
-            latest_prompts: Array(9).fill(""),
+            latest_prompts: generatedPrompts,
             latest_prompts_pictures: Array(9).fill(""),
         };
-
-        // GENERATE PROMPTS FOR NEW USER
 
         setDoc(doc(database, "users", user.uid), newUserData);
 
@@ -711,7 +717,7 @@ userRouter.post("/recommendFriends", async (req, res) => {
                 if (friendFriendId !== userId && !currentUserFriendIds.includes(friendFriendId)) {
 
                     const friendFriendDocRef = doc(database, "users", friendFriendId);
-                    const friendFriendDocSnap = await getDoc(friendDocRef);
+                    const friendFriendDocSnap = await getDoc(friendFriendDocRef);
 
 
                     if (!friendFriendDocSnap.exists()) {

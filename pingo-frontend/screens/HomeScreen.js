@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, ScrollView, Text, TouchableOpacity, StyleSheet, Pressable, Image } from 'react-native';
 import { Icon } from 'react-native-elements';
-import { pickPrompts } from '../prompts';
 import appLogo from '../assets/pingo-icon.png';
 import { useUser } from './../UserContext';
 import Lightbox from 'react-native-lightbox';
@@ -262,7 +261,7 @@ const HomeScreen = ({ navigation }) => {
     JosefinSans_700Bold, InterTight_600SemiBold, InterTight_500Medium, InterTight_400Regular, InterTight_400Regular_Italic, InterTight_700Bold, NotoSansDisplay_400Regular
   });
 
-  const [prompts, setPrompts] = useState(pickPrompts());
+  const [prompts, setPrompts] = useState(Array.fill(""));
   const [pics, setPics] = useState(Array(9).fill(null));
   const [numCompleted, setNumCompleted] = useState(0);
 

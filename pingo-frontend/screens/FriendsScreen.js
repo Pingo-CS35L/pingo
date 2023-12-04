@@ -72,6 +72,7 @@ function FriendPingoCard({ prompts, pics }) {
 
 const FriendsScreen = ({ navigation }) => {
   const { uid, setUid } = useUser();
+  const [reloadPage, setReloadPage] = useState(false);
   let [fontsLoaded, fontError] = useFonts({
     JosefinSans_700Bold, JosefinSans_500Medium, InterTight_600SemiBold, InterTight_500Medium, InterTight_700Bold
   });
@@ -139,7 +140,7 @@ const FriendsScreen = ({ navigation }) => {
     fetchFriendData();
     fetchRecommendedFriends();
   
-  }, [uid]);
+  }, [uid, reloadPage]);
 
   if (!fontsLoaded && !fontError) {
     console.log("Error loading fonts");
@@ -165,6 +166,7 @@ const FriendsScreen = ({ navigation }) => {
         console.log("Error while retrieving recommended friends: " + data.message);
       } else {
         // RELOAD PAGE
+        setReloadPage(!reloadPage);
       }
 
     } catch (error) {
@@ -300,6 +302,9 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     fontFamily: 'InterTight_700Bold',
     color: '#333330',
+  },
+  friendPingosContainer: {
+    marginBottom: 100
   },
   bingoCard: {
     padding: 15,
