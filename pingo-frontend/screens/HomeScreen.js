@@ -261,7 +261,7 @@ const HomeScreen = ({ navigation }) => {
     JosefinSans_700Bold, InterTight_600SemiBold, InterTight_500Medium, InterTight_400Regular, InterTight_400Regular_Italic, InterTight_700Bold, NotoSansDisplay_400Regular
   });
 
-  const [prompts, setPrompts] = useState(Array.fill(""));
+  const [prompts, setPrompts] = useState(Array(9).fill(""));
   const [pics, setPics] = useState(Array(9).fill(null));
   const [numCompleted, setNumCompleted] = useState(0);
 
