@@ -236,21 +236,25 @@ function PingoCard({ prompts, pics, navigation }) {
     <View style={styles.bingoCard}>
       {gridPrompts.map((row, rowIndex) => (
         <View key={rowIndex} style={styles.bingoRow}>
-          {row.map((prompt, colIndex) => (
-            <PingoSquare
-              key={colIndex}
-              prompt={prompt}
-              navigation={navigation}
-              pic={pics[rowIndex * cols + colIndex]}
-              isStockPhoto={false} // Change this to false for all cards
-            />
-          ))}
+          {row.map((prompt, colIndex) => {
+            const isMiddleSquare = rowIndex === 1 && colIndex === 1;
+            const picForSquare = isMiddleSquare ? null : pics[rowIndex * cols + colIndex];
+
+            return (
+              <PingoSquare
+                key={colIndex}
+                prompt={prompt}
+                navigation={navigation}
+                pic={picForSquare}
+                isStockPhoto={false} // Set isStockPhoto to false for the middle square
+              />
+            );
+          })}
         </View>
       ))}
     </View>
   );
 }
-
 
 const HomeScreen = ({ navigation }) => {
   const { uid, setUid } = useUser();

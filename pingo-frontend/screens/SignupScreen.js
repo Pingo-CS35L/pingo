@@ -22,7 +22,7 @@ const SignUpScreen = ({ navigation }) => {
 
   const handleSignup = async () => {
     // Actual authentication logic using the backend server
-    
+
     try {
       const response = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_SERVER}/user/signup`, {
           method: "POST",

@@ -96,7 +96,7 @@ const LoginScreen = ({ navigation }) => {
           <Button title={showPassword ? 'Hide' : 'Show'} onPress={togglePasswordVisibility} />
         </View>
 
-        <Pressable style={styles.loginButton} onPress={fakeHandleLogin}>
+        <Pressable style={styles.loginButton} onPress={handleLogin}>
           <Text style={styles.loginButtonText}>Login</Text>
         </Pressable>
 
