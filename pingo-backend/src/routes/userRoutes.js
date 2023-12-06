@@ -16,7 +16,6 @@ const auth = getAuth(firebaseApp);
 
 // Fixes file size issue 
 
-
 const upload = multer({
     storage: multer.memoryStorage(), // Memory storage instead of disk
     limits: {
@@ -812,8 +811,16 @@ userRouter.post('/uploadImage', upload.any(), async function(req, res) {
     const base64String = req.body.image;
     const decodedImage = Buffer.from(base64String, "base64");
    
+    const currentDate = new Date();
 
-    const storageRef = ref(storage, 'images/' + 'random.jpeg');
+    const formattedDateTime = currentDate
+        .toISOString()
+        .replace(/[-:]/g, "")
+        .split(".")[0];
+
+    const fileName = formattedDateTime + ".jpeg";
+
+    const storageRef = ref(storage, "images/" + fileName);
 
     const snapshot = await uploadBytes(storageRef, decodedImage);
 

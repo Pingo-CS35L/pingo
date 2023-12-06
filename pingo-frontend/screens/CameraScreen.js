@@ -38,7 +38,6 @@ const CameraScreen = () => {
   };
 
   const exitCamera = () => {
-    // Navigate back to the previous screen when the exit button is pressed
     navigation.goBack();
   };
 
@@ -50,11 +49,10 @@ const acceptPhoto = async () => {
 
         const reader = new FileReader();
         reader.onload = () => {
-            const base64String = reader.result.split(",")[1]; // Extract Base64 data
+            const base64String = reader.result.split(",")[1];
             const formData = new FormData();
-            formData.append("image", base64String); // Append Base64 string to FormData
+            formData.append("image", base64String); 
 
-            // Send the Base64 image string to the backend
             fetch(
                 `${process.env.EXPO_PUBLIC_BACKEND_SERVER}/user/uploadImage`,
                 {
@@ -74,46 +72,13 @@ const acceptPhoto = async () => {
                 });
         };
 
-        reader.readAsDataURL(blob); // Read the image blob as a Data URL
+        reader.readAsDataURL(blob);
     } catch (error) {
         console.error("Error:", error.message);
     }
 
     navigation.goBack();
 };
-
-
-// const acceptPhoto = async () => {
-
-//     // Convert the image URI to a blob
-    
-
-//     const formData = new FormData();
-//     formData.append('image', blob); // 'photo.jpg' can be any desired filename
-//     console.log(formData);
-
-//     try {
-//         const response = await fetch(
-//             `${process.env.EXPO_PUBLIC_BACKEND_SERVER}/user/uploadImage`,
-//             {
-//                 method: "POST",
-//                 body: formData,
-//             }
-//         );
-
-//         if (response.ok) {
-//             console.log("Photo uploaded successfully");
-//         } else {
-//             console.error("Failed to upload photo");
-//         }
-//     } catch (error) {
-//         console.error("Error uploading photo:", error.message);
-//     }
-
-//     navigation.goBack();
-// };
-
-  
 
   if (hasPermission === null) {
     return <View />;
