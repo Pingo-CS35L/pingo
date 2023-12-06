@@ -24,7 +24,7 @@ Additionally, users can add their friends on the app to see their Pingo boards t
 
 # Development
 
-Pingo was created as the final project for UCLA's COM SCI 35L course by students Pranav Sankar, Nishant Ray, Akshat Tirumalai, Krish Patel, Rishauv Kar-Roy (Discussion 1A). 
+Pingo was created as the final project for UCLA's COM SCI 35L course by students Pranav Sankar, Nishant Ray, Akshat Tirumalai, KrishJignesh Patel, Rishauv Kar-Roy (Discussion 1A). 
 The front-end of this mobile app was built using [React Native](https://reactnative.dev), and the back-end is powered by [Node.js](https://nodejs.org/en).
 
 # Getting Started
