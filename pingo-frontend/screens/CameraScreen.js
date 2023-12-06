@@ -2,15 +2,19 @@ import React, { useState, useEffect, useRef } from "react";
 import { StyleSheet, Text, View, TouchableOpacity, Image } from "react-native";
 import { Camera } from "expo-camera";
 import { Ionicons } from "@expo/vector-icons"; // Import Ionicons from expo/vector-icons
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useRoute  } from "@react-navigation/native";
+import { useUser } from './../UserContext';
 
 const CameraScreen = () => {
   const navigation = useNavigation(); // Initialize the useNavigation hook
-
+  const route = useRoute();
+  
+  const { uid, setUid } = useUser();
   const [hasPermission, setHasPermission] = useState(null);
   const [cameraType, setCameraType] = useState(Camera.Constants.Type.back);
   const [isTakingPhoto, setIsTakingPhoto] = useState(false);
   const [capturedPhoto, setCapturedPhoto] = useState(null);
+  const [promptNum, setPromptNum] = useState(route.params.promptNumber);
   const cameraRef = useRef(null);
 
   useEffect(() => {
@@ -43,15 +47,24 @@ const CameraScreen = () => {
 
   
 const acceptPhoto = async () => {
+  console.log(1);
     try {
+        console.log(2);
         const response = await fetch(capturedPhoto.uri);
+        console.log(3);
         const blob = await response.blob();
+        console.log(4);
 
         const reader = new FileReader();
+        console.log(5);
         reader.onload = () => {
             const base64String = reader.result.split(",")[1];
+            console.log(6);
             const formData = new FormData();
             formData.append("image", base64String); 
+            formData.append("userId", uid);
+            formData.append("promptNum", promptNum);
+            console.log(7);
 
             fetch(
                 `${process.env.EXPO_PUBLIC_BACKEND_SERVER}/user/uploadImage`,
@@ -61,10 +74,11 @@ const acceptPhoto = async () => {
                 }
             )
                 .then((response) => {
+                  console.log(8);
                     if (response.ok) {
                         console.log("Photo uploaded successfully");
                     } else {
-                        console.error("Failed to upload photo");
+                        console.error("Failed to upload photo: " + response);
                     }
                 })
                 .catch((error) => {

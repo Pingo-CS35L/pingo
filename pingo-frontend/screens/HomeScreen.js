@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { View, ScrollView, Text, TouchableOpacity, StyleSheet, Pressable, Image } from 'react-native';
 import { Icon } from 'react-native-elements';
 import appLogo from '../assets/pingo-icon.png';
@@ -150,31 +150,33 @@ const styles = StyleSheet.create({
   },
 });
 
-function PingoSquare({ prompt, pic, navigation, isStockPhoto, onStockPhotoPress }) {
+function PingoSquare({ prompt, pic, promptNumber, navigation, isStockPhoto }) {
   const navigateToCamera = () => {
-    navigation.navigate("CameraScreen");
+    navigation.navigate("CameraScreen", { promptNumber: promptNumber });
   };
 
-  if (isStockPhoto) {
-    return (
-      <View style={styles.square}>
-        <Lightbox
-          renderContent={() => (
-            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-              <Image source={require('../assets/download.jpeg')} style={styles.enlargedImage} />
-              <Text style={styles.promptText}>{prompt}</Text>
-            </View>
-          )}
-          underlayColor="white" 
-        >
-          <View style={styles.picContainer}>
-            <Image source={require('../assets/download.jpeg')} style={styles.pic} />
-            <Text style={styles.promptText}>{prompt}</Text>
-          </View>
-        </Lightbox>
-      </View>
-    );
-  } else if (pic !== null && pic !== undefined && pic !== "") {
+  // if (isStockPhoto) {
+  //   return (
+  //     <View style={styles.square}>
+  //       <Lightbox
+  //         renderContent={() => (
+  //           <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+  //             <Image source={require('../assets/download.jpeg')} style={styles.enlargedImage} />
+  //             <Text style={styles.promptText}>{prompt}</Text>
+  //           </View>
+  //         )}
+  //         underlayColor="white" 
+  //       >
+  //         <View style={styles.picContainer}>
+  //           <Image source={require('../assets/download.jpeg')} style={styles.pic} />
+  //           <Text style={styles.promptText}>{prompt}</Text>
+  //         </View>
+  //       </Lightbox>
+  //     </View>
+  //   );
+  // }
+  
+  if (pic !== null && pic !== undefined && pic !== "") {
     return (
       <View style={styles.square}>
         <Lightbox
@@ -236,15 +238,13 @@ function PingoCard({ prompts, pics, navigation }) {
       {gridPrompts.map((row, rowIndex) => (
         <View key={rowIndex} style={styles.bingoRow}>
           {row.map((prompt, colIndex) => {
-            const isMiddleSquare = rowIndex === 1 && colIndex === 1;
-            const picForSquare = isMiddleSquare ? null : pics[rowIndex * cols + colIndex];
-
             return (
               <PingoSquare
                 key={colIndex}
                 prompt={prompt}
+                promptNumber={rowIndex * cols + colIndex}
                 navigation={navigation}
-                pic={picForSquare}
+                pic={pics[rowIndex * cols + colIndex]}
                 isStockPhoto={false} // Set isStockPhoto to false for the middle square
               />
             );
@@ -262,83 +262,79 @@ const HomeScreen = ({ navigation }) => {
   });
 
   const [prompts, setPrompts] = useState(Array(9).fill(""));
-  const [pics, setPics] = useState(Array(9).fill(null));
+  const [pics, setPics] = useState(Array(9).fill(""));
   const [numCompleted, setNumCompleted] = useState(0);
 
-  useEffect(() => {
-    const fetchNumCompleted = async () => {
-      try {
-  
-        const response = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_SERVER}/user/getPingoStats`, {
-          method: "POST",
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            userId: uid
-          }),
-        });
-  
-        const data = await response.json();
-  
-        if (data.success) {
-          setNumCompleted(data.today_score);
-        }
-      } catch (error) {
-        console.log('Error:', error);
+  const fetchData = useCallback(async () => {
+    try {
+      const responseNumCompleted = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_SERVER}/user/getPingoStats`, {
+        method: "POST",
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: uid
+        }),
+      });
+      const dataNumCompleted = await responseNumCompleted.json();
+      if (dataNumCompleted.success) {
+        setNumCompleted(dataNumCompleted.today_score);
       }
-    };
 
-    const fetchPrompts = async () => {
-      try {
-  
-        const response = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_SERVER}/user/getPrompts`, {
-          method: "POST",
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            userId: uid
-          }),
-        });
-  
-        const data = await response.json();
-  
-        if (data.success) {
-          setPrompts(data.prompts);
-        }
-      } catch (error) {
-        console.log('Error:', error);
+      const responsePrompts = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_SERVER}/user/getPrompts`, {
+        method: "POST",
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: uid
+        }),
+      });
+      const dataPrompts = await responsePrompts.json();
+      if (dataPrompts.success) {
+        setPrompts(dataPrompts.prompts);
       }
-    };
 
-    const fetchPics = async () => {
-      try {
-  
-        const response = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_SERVER}/user/getUserImages`, {
-          method: "POST",
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            userId: uid
-          }),
-        });
-  
-        const data = await response.json();
-  
-        if (data.success) {
-          setPics(data.today_pictures);
-        }
-      } catch (error) {
-        console.log('Error:', error);
+      const responsePics = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_SERVER}/user/getUserImages`, {
+        method: "POST",
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: uid
+        }),
+      });
+      const dataPics = await responsePics.json();
+      if (dataPics.success) {
+        setPics(dataPics.today_pictures);
       }
-    };
-
-    fetchNumCompleted();
-    fetchPrompts();
-    fetchPics();
+    } catch (error) {
+      console.log('Error:', error);
+    }
   }, [uid]);
+
+  // useEffect(() => {
+  //   fetchData();
+
+  //   const unsubscribeFocus = navigation.addListener('focus', () => {
+  //     fetchData();
+  //   });
+
+  //   return () => {
+  //     unsubscribeFocus();
+  //   };
+  // }, [fetchData, navigation]);
+
+  useEffect(() => {
+    const fetchDataInterval = setInterval(() => {
+      fetchData();
+    }, 2000);
+
+    // Cleanup the interval when the component is unmounted
+    return () => {
+      clearInterval(fetchDataInterval);
+    };
+  }, [fetchData]);
 
   if (!fontsLoaded && !fontError) {
     console.log("Error loading fonts");

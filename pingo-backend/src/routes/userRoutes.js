@@ -133,7 +133,6 @@ userRouter.post("/signup", async (req, res) => {
     }
 });
 
-// NOTE: Database will hold url to images, so calling get() on the database will return a url which will need to be processed farther. (Probably better to do on frontend?)
 userRouter.post("/getUserImages", async (req, res) => {
     try {
         const { userId } = req.body;
@@ -808,29 +807,90 @@ userRouter.post("/recommendFriends", async (req, res) => {
 // Requires images to be of type 'file' -> Inputs from frontend are not type 'file', should be fixed to handle this now.                                                
 userRouter.post('/uploadImage', upload.any(), async function(req, res) {
   try {
-    const base64String = req.body.image;
-    const decodedImage = Buffer.from(base64String, "base64");
+    const { userId, promptNum, image } = req.body;
+    console.log(1);
+
+    if (userId === undefined || promptNum === undefined || image === undefined) {
+        console.log(1.5);
+        return res
+            .status(401)
+            .json({
+                success: false,
+                message: "userId, promptNum, and base64String are required in request body.",
+            });
+    }
+
+    console.log(2);
+    const decodedImage = Buffer.from(image, "base64");
+    console.log(3);
    
     const currentDate = new Date();
+    console.log(4);
 
     const formattedDateTime = currentDate
         .toISOString()
         .replace(/[-:]/g, "")
         .split(".")[0];
+    console.log(5);
 
     const fileName = formattedDateTime + ".jpeg";
+    console.log(6);
 
     const storageRef = ref(storage, "images/" + fileName);
+    console.log(7);
 
     const snapshot = await uploadBytes(storageRef, decodedImage);
+    console.log(8);
 
     const downloadURL = await getDownloadURL(snapshot.ref);
+    console.log(9);
 
-    return res.status(200).json({ success: true, url: downloadURL });
+    const docRef = doc(database, "users", userId);
+    console.log(10);
+    const docSnap = await getDoc(docRef);
+    console.log(11);
+
+    if (!docSnap.exists()) {
+        console.log(12);
+        return res
+            .status(401)
+            .json({
+                success: false,
+                message: "No User Found with that userId",
+            });
+    }
+
+    const data = docSnap.data();
+    console.log(13);
+
+    const score = data["latest_completed_prompts"];
+    const pics = data["latest_prompts_pictures"];
+    console.log(14);
+    let newPics = [];
+
+    for (let i = 0; i < pics.length; i++) {
+        if (i === parseInt(promptNum)) {
+            console.log(15);
+            newPics.push(downloadURL);
+        } else {
+            console.log(16);
+            newPics.push(pics[i]);
+        }
+    }
+    console.log(17);
+
+    await updateDoc(docRef, {
+        latest_completed_prompts: score + 1,
+        latest_prompts_pictures: newPics,
+    });
+    console.log(18);
+
+    return res.status(200).json({ success: true, message: "Successfully added image." });
   } 
   catch (error) {
+    console.log(19);
     console.error("Error uploading image:", error);
-    return res.status(500).json({ success: false, error: error.message });
+    return res.status(500).json({ success: false, message: error.message });
   }
 });
 
