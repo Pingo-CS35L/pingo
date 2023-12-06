@@ -802,12 +802,12 @@ userRouter.post("/recommendFriends", async (req, res) => {
     }
 });
 
-// Route to upload images to Firebase Storage                                                                                           
-// Requires images to be of type 'file' -> Inputs from frontend are not type 'file', should be fixed to handle this now.                                                                                               
+// Route to upload images to Firebase Storage 
+// Requires images to be of type 'file' -> Inputs from frontend are not type 'file', should be fixed to handle this now.                                                
 userRouter.post('/uploadImage', upload.single('file'), async function(req, res) {
   try {
-    const file = req.file; 
-      
+    const {file} = req.body; 
+
     if (!file) {
       return res.status(400).json({ success: false, message: "No file uploaded" });
     }
@@ -820,12 +820,11 @@ userRouter.post('/uploadImage', upload.single('file'), async function(req, res) 
 
     return res.status(200).json({ success: true, url: downloadURL });
       
-  } catch (error) {
+  } 
+  catch (error) {
     console.error("Error uploading image:", error);
     return res.status(500).json({ success: false, error: error.message });
   }
 });
-
-
 
 export { userRouter };

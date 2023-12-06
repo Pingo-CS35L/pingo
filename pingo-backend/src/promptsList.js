@@ -43,7 +43,7 @@
 // ];
 // const celebrations_prompts = [
 //     "Do a LeBron Celebration",
-//     "De a Curry Celebration",
+//     "Do a Curry Celebration",
 //     "Do a Ronaldo Celebration",
 //     "Do a Messi Celebration",
 //     "Do a Tom Brady Celebration",
