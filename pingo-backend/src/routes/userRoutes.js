@@ -15,14 +15,17 @@ const userRouter = express.Router();
 const auth = getAuth(firebaseApp);
 
 // Fixes file size issue 
+
+
 const upload = multer({
-  storage: multer.memoryStorage(), // Memory storage instead of disk
-  limits: {
-    // Adjust file size
-    fileSize: 50 * 1024 * 1024, // Currently set to 50MB
-    // Adjust file name size if necessary (unlikely)
-    fieldNameSize: 100,
-  },
+    storage: multer.memoryStorage(), // Memory storage instead of disk
+    limits: {
+        // Adjust file size
+        fileSize: 50 * 1024 * 1024, // Currently set to 50MB
+        // Adjust file name size if necessary (unlikely)
+        fieldNameSize: 100,
+        fieldSize: 50 * 1024 * 1024, // Currently set to 50MB
+    },
 });
 
 
@@ -804,22 +807,19 @@ userRouter.post("/recommendFriends", async (req, res) => {
 
 // Route to upload images to Firebase Storage 
 // Requires images to be of type 'file' -> Inputs from frontend are not type 'file', should be fixed to handle this now.                                                
-userRouter.post('/uploadImage', upload.single('file'), async function(req, res) {
+userRouter.post('/uploadImage', upload.any(), async function(req, res) {
   try {
-    const {file} = req.body; 
+    const base64String = req.body.image;
+    const decodedImage = Buffer.from(base64String, "base64");
+   
 
-    if (!file) {
-      return res.status(400).json({ success: false, message: "No file uploaded" });
-    }
+    const storageRef = ref(storage, 'images/' + 'random.jpeg');
 
-    const storageRef = ref(storage, 'images/' + file.originalname);
-
-    const snapshot = await uploadBytes(storageRef, file.buffer);
+    const snapshot = await uploadBytes(storageRef, decodedImage);
 
     const downloadURL = await getDownloadURL(snapshot.ref);
 
     return res.status(200).json({ success: true, url: downloadURL });
-      
   } 
   catch (error) {
     console.error("Error uploading image:", error);

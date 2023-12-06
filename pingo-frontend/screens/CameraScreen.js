@@ -42,27 +42,76 @@ const CameraScreen = () => {
     navigation.goBack();
   };
 
- const acceptPhoto = async () => {
-  const formData = new FormData();
-  formData.append('file', capturedPhoto); // Adjusted field name to match backend
+  
+const acceptPhoto = async () => {
+    try {
+        const response = await fetch(capturedPhoto.uri);
+        const blob = await response.blob();
 
-  try {
-    const response = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_SERVER}/user/uploadImage`, {
-      method: 'POST',
-      body: formData,
-    });
+        const reader = new FileReader();
+        reader.onload = () => {
+            const base64String = reader.result.split(",")[1]; // Extract Base64 data
+            const formData = new FormData();
+            formData.append("image", base64String); // Append Base64 string to FormData
 
-    if (response.ok) {
-      console.log('Photo uploaded successfully');
-    } else {
-      console.error('Failed to upload photo');
+            // Send the Base64 image string to the backend
+            fetch(
+                `${process.env.EXPO_PUBLIC_BACKEND_SERVER}/user/uploadImage`,
+                {
+                    method: "POST",
+                    body: formData,
+                }
+            )
+                .then((response) => {
+                    if (response.ok) {
+                        console.log("Photo uploaded successfully");
+                    } else {
+                        console.error("Failed to upload photo");
+                    }
+                })
+                .catch((error) => {
+                    console.error("Error uploading photo:", error.message);
+                });
+        };
+
+        reader.readAsDataURL(blob); // Read the image blob as a Data URL
+    } catch (error) {
+        console.error("Error:", error.message);
     }
-  } catch (error) {
-    console.error('Error uploading photo:', error.message);
-  }
 
-  navigation.goBack();
+    navigation.goBack();
 };
+
+
+// const acceptPhoto = async () => {
+
+//     // Convert the image URI to a blob
+    
+
+//     const formData = new FormData();
+//     formData.append('image', blob); // 'photo.jpg' can be any desired filename
+//     console.log(formData);
+
+//     try {
+//         const response = await fetch(
+//             `${process.env.EXPO_PUBLIC_BACKEND_SERVER}/user/uploadImage`,
+//             {
+//                 method: "POST",
+//                 body: formData,
+//             }
+//         );
+
+//         if (response.ok) {
+//             console.log("Photo uploaded successfully");
+//         } else {
+//             console.error("Failed to upload photo");
+//         }
+//     } catch (error) {
+//         console.error("Error uploading photo:", error.message);
+//     }
+
+//     navigation.goBack();
+// };
 
   
 
