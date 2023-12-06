@@ -13,7 +13,18 @@ import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 const userRouter = express.Router();
 const auth = getAuth(firebaseApp);
-const upload = multer({ storage: multer.memoryStorage() });
+
+// Fixes file size issue 
+const upload = multer({
+  storage: multer.memoryStorage(), // Memory storage instead of disk
+  limits: {
+    // Adjust file size
+    fileSize: 50 * 1024 * 1024, // Currently set to 50MB
+    // Adjust file name size if necessary (unlikely)
+    fieldNameSize: 100,
+  },
+});
+
 
 // Middleware to get the current user's UID
 const getCurrentUserUID = (req, res, next) => {
