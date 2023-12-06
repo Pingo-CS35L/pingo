@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { StyleSheet, Text, View, TouchableOpacity, Image } from "react-native";
 import { Camera } from "expo-camera";
 import { Ionicons } from "@expo/vector-icons"; // Import Ionicons from expo/vector-icons
+//import Icon from 'react-native-ionicons';
 import { useNavigation, useRoute  } from "@react-navigation/native";
 import { useUser } from './../UserContext';
 
@@ -19,7 +20,7 @@ const CameraScreen = () => {
 
   useEffect(() => {
     (async () => {
-      const { status } = await Camera.requestPermissionsAsync();
+      const { status } = await Camera.requestCameraPermissionsAsync();
       setHasPermission(status === "granted");
     })();
   }, []);
@@ -47,24 +48,21 @@ const CameraScreen = () => {
 
   
 const acceptPhoto = async () => {
-  console.log(1);
+
     try {
-        console.log(2);
         const response = await fetch(capturedPhoto.uri);
-        console.log(3);
+
         const blob = await response.blob();
-        console.log(4);
 
         const reader = new FileReader();
-        console.log(5);
+
         reader.onload = () => {
             const base64String = reader.result.split(",")[1];
-            console.log(6);
+
             const formData = new FormData();
             formData.append("image", base64String); 
             formData.append("userId", uid);
             formData.append("promptNum", promptNum);
-            console.log(7);
 
             fetch(
                 `${process.env.EXPO_PUBLIC_BACKEND_SERVER}/user/uploadImage`,
@@ -74,7 +72,6 @@ const acceptPhoto = async () => {
                 }
             )
                 .then((response) => {
-                  console.log(8);
                     if (response.ok) {
                         console.log("Photo uploaded successfully");
                     } else {
@@ -98,7 +95,7 @@ const acceptPhoto = async () => {
     return <View />;
   }
   if (hasPermission === false) {
-    return <Text>No access to camera</Text>;
+    return <Text style={{ textAlign: "center", marginTop: 200, fontSize: 26, fontWeight: 700 }}>No access to camera!</Text>;
   }
 
   return (
@@ -106,10 +103,10 @@ const acceptPhoto = async () => {
       <Camera style={styles.camera} type={cameraType} ref={cameraRef}>
         <View style={styles.buttonContainer}>
           <TouchableOpacity style={styles.exitButton} onPress={exitCamera}>
-            <Ionicons name="ios-close" size={32} color="white" />
+            <Ionicons name="close" size={40} color="white" />
           </TouchableOpacity>
           <TouchableOpacity style={styles.flipButton} onPress={flipCamera}>
-            <Ionicons name="ios-reverse-camera" size={32} color="white" />
+            <Ionicons name="camera-reverse-outline" size={40} color="white" />
           </TouchableOpacity>
           {capturedPhoto ? (
             <TouchableOpacity
@@ -117,7 +114,7 @@ const acceptPhoto = async () => {
               onPress={acceptPhoto}
               disabled={isTakingPhoto}
             >
-              <Ionicons style={styles.checkMarkButton} name="checkmark-circle" size={32} color="white" />
+              <Ionicons style={styles.checkMarkButton} name="send-outline" size={40} color="white" />
             </TouchableOpacity>
           ) : (
             <TouchableOpacity
@@ -126,9 +123,10 @@ const acceptPhoto = async () => {
               disabled={isTakingPhoto}
             >
               {isTakingPhoto ? (
-                <View style={styles.captureButtonInner} />
+                // <View style={styles.captureButtonInner} />
+                <Ionicons name="camera" size={40} color="white" />
               ) : (
-                <Ionicons name="ios-camera" size={70} color="white" />
+                <Ionicons name="camera" size={40} color="white" />
               )}
             </TouchableOpacity>
           )}
@@ -188,23 +186,22 @@ const acceptPhoto = async () => {
     },
     previewContainer: {
       alignItems: "center",
+      padding: 20,
     },
     previewText: {
       fontSize: 20,
       fontWeight: "bold",
-      marginBottom: 10,
+      marginBottom: 20,
     },
     previewImageContainer: {
       width: 200,
-      height: 200,
-      borderWidth: 1,
-      borderColor: "gray",
-      borderRadius: 10,
+      height: 500,
+      borderRadius: 5,
       justifyContent: "center",
       alignItems: "center",
     },
     previewImage: {
-      width: "100%",
+      width: "130%",
       height: "100%",
       borderRadius: 10,
     },
@@ -212,11 +209,7 @@ const acceptPhoto = async () => {
       position: "absolute",
       bottom: 0,
       right: 0,
-      borderRadius: 10,
       paddingVertical: 10,
-      paddingHorizontal: 15,
-      alignItems: "center",
-      justifyContent: "center",
     },
     bottomRightButtonText: {
       color: "white",

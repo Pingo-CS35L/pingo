@@ -76,9 +76,8 @@ const styles = StyleSheet.create({
     marginTop: 10
   },
   pic: {
-    width: '100%',
-    height: '100%',
-    backgroundColor: 'orange',
+    width: 50,
+    height: 500,
     borderRadius: 5
   },
   picInfoText: {
@@ -131,7 +130,7 @@ const styles = StyleSheet.create({
   }, 
   picContainer: {
     backgroundColor: 'white',
-    width: "100%",
+    width: 105,
     height: 105,
     borderRadius: 5,
     justifyContent: 'center',
@@ -144,7 +143,7 @@ const styles = StyleSheet.create({
   },
   pic: {
     width: '100%', // Set it to 100% to fill the parent container
-    height: '80%', // Set it to 100% to fill the parent container
+    height: '100%', // Set it to 100% to fill the parent container
     borderRadius: 5,
     overflow: 'hidden', // Hide any content that overflows the box
   },
@@ -181,18 +180,18 @@ function PingoSquare({ prompt, pic, promptNumber, navigation, isStockPhoto }) {
       <View style={styles.square}>
         <Lightbox
           renderContent={() => (
-            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'transparent' }}>
               <Image source={{ uri: pic }} style={styles.enlargedImage} />
-              <Text style={styles.promptText}>{prompt}</Text>
+              <Text style={{ color: "white", marginTop: 25, fontFamily: 'InterTight_500Medium', fontSize: 24 }}>{prompt}</Text>
             </View>
           )}
-          underlayColor="white" // Adjust the color of the underlay when the image is pressed
+          backgroundColor="rgba(0, 0, 0, 0.8)" // Set the background color of the Lightbox content
         >
           <View style={styles.picContainer}>
             <Image source={{ uri: pic }} style={styles.pic} />
-            <Text style={styles.promptText}>{prompt}</Text>
           </View>
         </Lightbox>
+        <Text style={styles.promptText}>{prompt}</Text>
       </View>
     );
   } else {
@@ -313,6 +312,7 @@ const HomeScreen = ({ navigation }) => {
     }
   }, [uid]);
 
+  // METHOD #1: Fetch data when navigation focus changes
   // useEffect(() => {
   //   fetchData();
 
@@ -325,18 +325,38 @@ const HomeScreen = ({ navigation }) => {
   //   };
   // }, [fetchData, navigation]);
 
+
+  // METHOD #2: Fetch data every 2 seconds
+  // useEffect(() => {
+  //   const fetchDataInterval = setInterval(() => {
+  //     fetchData();
+  //   }, 2000);
+
+  //   return () => {
+  //     clearInterval(fetchDataInterval);
+  //   };
+  // }, [fetchData]);
+
+  // METHOD #3: Both of the above
   useEffect(() => {
+    fetchData();
+  
+    const unsubscribeFocus = navigation.addListener('focus', () => {
+      fetchData();
+    });
+  
     const fetchDataInterval = setInterval(() => {
       fetchData();
     }, 2000);
-
-    // Cleanup the interval when the component is unmounted
+  
     return () => {
+      unsubscribeFocus();
+  
       clearInterval(fetchDataInterval);
     };
-  }, [fetchData]);
+  }, [navigation]);
 
-  if (!fontsLoaded && !fontError) {
+  if (!fontsLoaded || fontError) {
     console.log("Error loading fonts");
     return null;
   }

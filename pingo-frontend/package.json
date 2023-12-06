@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@expo-google-fonts/dev": "^0.2.3",
+    "@expo/vector-icons": "^13.0.0",
     "@react-native-community/cli": "^12.2.0",
     "@react-navigation/native": "^6.1.9",
     "@react-navigation/native-stack": "^6.9.17",
@@ -26,6 +27,7 @@
     "react-native-eject": "^0.2.0",
     "react-native-elements": "^3.4.3",
     "react-native-image-picker": "^7.0.3",
+    "react-native-ionicons": "^4.6.5",
     "react-native-lightbox": "^0.8.1",
     "react-native-linear-gradient": "^2.8.3",
     "react-native-permissions": "^3.10.1",
