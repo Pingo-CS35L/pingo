@@ -260,6 +260,7 @@ const HomeScreen = ({ navigation }) => {
     JosefinSans_700Bold, InterTight_600SemiBold, InterTight_500Medium, InterTight_400Regular, InterTight_400Regular_Italic, InterTight_700Bold, NotoSansDisplay_400Regular
   });
 
+  const [isFocused, setIsFocused] = useState(true);
   const [prompts, setPrompts] = useState(Array(9).fill(""));
   const [pics, setPics] = useState(Array(9).fill(""));
   const [numCompleted, setNumCompleted] = useState(0);
@@ -275,7 +276,9 @@ const HomeScreen = ({ navigation }) => {
           userId: uid
         }),
       });
+
       const dataNumCompleted = await responseNumCompleted.json();
+
       if (dataNumCompleted.success) {
         setNumCompleted(dataNumCompleted.today_score);
       }
@@ -308,7 +311,7 @@ const HomeScreen = ({ navigation }) => {
         setPics(dataPics.today_pictures);
       }
     } catch (error) {
-      console.log('Error:', error);
+      console.log('Fetching prompts and pictures error:', error);
     }
   }, [uid]);
 
@@ -342,19 +345,27 @@ const HomeScreen = ({ navigation }) => {
     fetchData();
   
     const unsubscribeFocus = navigation.addListener('focus', () => {
+      setIsFocused(true);
       fetchData();
+    });
+
+    const unsubscribeBlur = navigation.addListener('blur', () => {
+      setIsFocused(false);
     });
   
     const fetchDataInterval = setInterval(() => {
-      fetchData();
+      if (isFocused) {
+        fetchData();
+      }
     }, 2000);
   
     return () => {
       unsubscribeFocus();
+      unsubscribeBlur();
   
       clearInterval(fetchDataInterval);
     };
-  }, [navigation]);
+  }, [navigation, isFocused]);
 
   if (!fontsLoaded || fontError) {
     console.log("Error loading fonts");

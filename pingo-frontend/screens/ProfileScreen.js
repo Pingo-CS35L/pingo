@@ -40,6 +40,7 @@ const ProfileScreen = ({ navigation }) => {
 
     useEffect(() => {
         const fetchUsernameAndEmail = async () => {
+
             try {
                 const response = await fetch(
                     `${process.env.EXPO_PUBLIC_BACKEND_SERVER}/user/getUserById`,
@@ -54,14 +55,14 @@ const ProfileScreen = ({ navigation }) => {
                     }
                 );
 
-                const data = await response.json();
+                const data = response.json();
 
                 if (data.success) {
                     setEmail(data.user["email"]);
                     setUsername(data.user["username"]);
                 }
             } catch (error) {
-                console.log("Error:", error);
+                console.log("Fetching username and email error:", error);
             }
         };
 
@@ -88,7 +89,7 @@ const ProfileScreen = ({ navigation }) => {
                     setSquaresToday(data.today_score);
                 }
             } catch (error) {
-                console.log("Error:", error);
+                console.log("Fetching stats error:", error);
             }
         };
 
@@ -113,7 +114,7 @@ const ProfileScreen = ({ navigation }) => {
                     setFriendsUsernames(data.friendUsernames);
                 }
             } catch (error) {
-                console.log("Error:", error);
+                console.log("Fetching friends Error:", error);
             }
         };
 

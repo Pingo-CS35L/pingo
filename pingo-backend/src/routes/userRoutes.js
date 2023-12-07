@@ -42,6 +42,8 @@ const getCurrentUserUID = (req, res, next) => {
 userRouter.use(getCurrentUserUID);
 
 userRouter.post("/login", async (req, res) => {
+    console.log("Logging in");
+
     const { email, password } = req.body;
 
     if (email === undefined || password === undefined) {
@@ -73,6 +75,8 @@ userRouter.post("/login", async (req, res) => {
 });
 
 userRouter.post("/signup", async (req, res) => {
+    console.log("Signing up");
+
     const { email, username, password } = req.body;
 
     if (
@@ -134,6 +138,8 @@ userRouter.post("/signup", async (req, res) => {
 });
 
 userRouter.post("/getUserImages", async (req, res) => {
+    console.log("Getting user images");
+
     try {
         const { userId } = req.body;
 
@@ -205,6 +211,8 @@ userRouter.post("/getUserImages", async (req, res) => {
 });
 
 userRouter.post("/getPingoStats", async (req, res) => {
+    console.log("Getting pingo stats");
+
     try {
         const { userId } = req.body;
 
@@ -258,6 +266,8 @@ function generatePrompts() {
 }
 
 userRouter.post("/getPrompts", async (req, res) => {
+    console.log("Getting prompts");
+
     try {
         const { userId } = req.body;
 
@@ -337,6 +347,8 @@ userRouter.post("/getPrompts", async (req, res) => {
 
 // get all users from the database and send back as json
 userRouter.get("/getAllUsers", async (req, res) => {
+    console.log("Getting all users");
+
     try {
         const snapshot = await firestore.collection("users").get();
         const data = snapshot.docs.map((doc) => doc.data());
@@ -351,6 +363,8 @@ userRouter.get("/getAllUsers", async (req, res) => {
 
 // get a single user by id
 userRouter.post("/getUserById", async (req, res) => {
+    console.log("Getting user by ID");
+
     try {
         const { userId } = req.body;
 
@@ -385,6 +399,8 @@ userRouter.post("/getUserById", async (req, res) => {
 
 // delete user from db
 userRouter.delete("/deleteUser", async (req, res) => {
+    console.log("Deleting user");
+
     const { userId } = req.body;
     if (userId === undefined) {
         return res
@@ -404,6 +420,8 @@ userRouter.delete("/deleteUser", async (req, res) => {
 });
 
 userRouter.post("/addFriend", async (req, res) => {
+    console.log("Adding friend");
+
     try {
         const { userId, friendId } = req.body;
         if (userId === undefined || friendId === undefined) {
@@ -457,6 +475,8 @@ userRouter.post("/addFriend", async (req, res) => {
 });
 
 userRouter.delete("/deleteFriend", async (req, res) => {
+    console.log("Deleting friend");
+
     try {
         const { userId, friendId } = req.body;
         if (userId === undefined || friendId === undefined) {
@@ -512,6 +532,8 @@ userRouter.delete("/deleteFriend", async (req, res) => {
 });
 
 userRouter.post("/getAllFriends", async (req, res) => {
+    console.log("Getting all friends");
+
     try {
         const { userId } = req.body;
         if (userId === undefined) {
@@ -538,6 +560,8 @@ userRouter.post("/getAllFriends", async (req, res) => {
 });
 
 userRouter.post("/getFriendsUsernames", async (req, res) => {
+    console.log("Getting friends usernames");
+    
     try {
         const { userId } = req.body;
         if (userId === undefined) {
@@ -587,6 +611,8 @@ userRouter.post("/getFriendsUsernames", async (req, res) => {
 });
 
 userRouter.post("/getFriendData", async (req, res) => {
+    console.log("Getting friend data");
+    
     try {
         const { userId } = req.body;
 
@@ -682,6 +708,8 @@ userRouter.post("/getFriendData", async (req, res) => {
 });
 
 userRouter.post("/recommendFriends", async (req, res) => {
+    console.log("Recommending friends");
+    
     try {
 
         const { userId } = req.body;
@@ -805,6 +833,8 @@ userRouter.post("/recommendFriends", async (req, res) => {
 
 // Route to upload images to Firebase Storage                                            
 userRouter.post('/uploadImage', upload.any(), async function(req, res) {
+    console.log("Uploading image");
+    
   try {
     const { userId, promptNum, image } = req.body;
 
