@@ -9,7 +9,7 @@ import {
 } from "firebase/auth";
 import { master_prompts } from "../promptsList.js";
 import { collection, deleteDoc, doc, getDoc, getDocs, setDoc, updateDoc } from "firebase/firestore";
-import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 const userRouter = express.Router();
 const auth = getAuth(firebaseApp);
@@ -881,8 +881,17 @@ userRouter.post('/uploadImage', upload.any(), async function(req, res) {
 
     const score = data["latest_completed_prompts"];
     const pics = data["latest_prompts_pictures"];
+    const totalPingos = data["completed_pingos"];
+    const totalPrompts = data["completed_prompts"];
 
+    if (score == 9) {
+        return res.status(500).json({ success: false, message: "Unable to add Pingo; already completed today's Pingo board." });
+    }
+
+    let newScore = score >= 9 ? 9 : score + 1;
     let newPics = [];
+    let newTotalPingos = (newScore >= 9) ? totalPingos + 1 : totalPingos;
+    let newTotalPrompts = totalPrompts + 1;
 
     for (let i = 0; i < pics.length; i++) {
         if (i === parseInt(promptNum)) {
@@ -893,8 +902,10 @@ userRouter.post('/uploadImage', upload.any(), async function(req, res) {
     }
 
     await updateDoc(docRef, {
-        latest_completed_prompts: score + 1,
+        latest_completed_prompts: newScore,
         latest_prompts_pictures: newPics,
+        completed_pingos: newTotalPingos,
+        completed_prompts: newTotalPrompts
     });
 
     return res.status(200).json({ success: true, message: "Successfully added image." });

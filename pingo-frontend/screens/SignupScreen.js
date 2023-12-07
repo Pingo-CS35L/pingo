@@ -38,8 +38,13 @@ const SignUpScreen = ({ navigation }) => {
     }
 
     const handleSignup = async () => {
-        // Actual authentication logic using the backend server
 
+        if (newEmail == "" || newUsername == "" || newPassword == "") {
+            alert("Please enter an email, username, and password!");
+            return;
+        }
+
+        // Actual authentication logic using the backend server
         try {
             const response = await fetch(
                 `${process.env.EXPO_PUBLIC_BACKEND_SERVER}/user/signup`,

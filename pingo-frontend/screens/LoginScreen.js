@@ -37,6 +37,12 @@ const LoginScreen = ({ navigation }) => {
     }
 
     const handleLogin = async () => {
+
+        if (email == "" || password == "") {
+            alert("Please enter an email and password!");
+            return;
+        }
+
         // Actual authentication logic using the backend server
         try {
             const response = await fetch(
@@ -61,7 +67,7 @@ const LoginScreen = ({ navigation }) => {
                 setUid(data.uid);
                 navigation.navigate("Home");
             } else {
-                alert("Invalid username or password. Please try again.");
+                alert("Invalid username or password! Please try again.");
             }
         } catch (error) {
             alert("Server error!");
