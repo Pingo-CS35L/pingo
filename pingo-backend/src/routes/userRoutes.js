@@ -712,7 +712,7 @@ userRouter.post("/recommendFriends", async (req, res) => {
 
         const currentUserFriendIds = docSnap.data()["friends"];
         for (let i = 0; i < currentUserFriendIds.length; i++) {
-            let friendId = currentUserFriendsIds[i];
+            let friendId = currentUserFriendIds[i];
             const friendDocRef = doc(database, "users", friendId);
             const friendDocSnap = await getDoc(friendDocRef);
 
@@ -750,7 +750,7 @@ userRouter.post("/recommendFriends", async (req, res) => {
             }
         }
 
-        if (recommendedFriendsIds.length === 0) {
+        if (recommendedFriendsIds.length < 2) {
 
             for(let i = 0; i < 5; i++) {
                 const usersCollection = collection(database, 'users');
