@@ -12,6 +12,11 @@
   <a href="#getting-started">Getting Started</a>
 </p>
 
+# Development
+
+Pingo was created as the final project for UCLA's COM SCI 35L course by students KrishJignesh Patel, Pranav Sankar, Nishant Ray, Akshat Tirumalai, Rishauv Kar-Roy (Discussion 1A). 
+The front-end of this mobile app was built using [React Native](https://reactnative.dev), and the back-end is powered by [Node.js](https://nodejs.org/en).
+
 # About
 
 Pingo takes the timeless classic Bingo and brings it to the modern world with the interactivity and engagement of social media. 
@@ -21,11 +26,6 @@ In order to win for the day, you must complete 3 prompts in a row - but you may 
 Our mission at Pingo is to foster healthy friendships and positive community involvement.
 We have carefully hand-picked the prompts displayed so that our users will engage in diverse experiences and activities that will have a positive impact on our users and those around them.
 Additionally, users can add their friends on the app to see their Pingo boards too, allowing for healthy competition and a way for users to see what others are up to.
-
-# Development
-
-Pingo was created as the final project for UCLA's COM SCI 35L course by students Pranav Sankar, Nishant Ray, Akshat Tirumalai, KrishJignesh Patel, Rishauv Kar-Roy (Discussion 1A). 
-The front-end of this mobile app was built using [React Native](https://reactnative.dev), and the back-end is powered by [Node.js](https://nodejs.org/en).
 
 # Getting Started
 
